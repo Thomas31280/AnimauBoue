@@ -1,0 +1,46 @@
+{% extends 'administration/base.html' %}
+
+{% block content %}
+<!--Connexion Form-->
+<br><br><br><br><br>
+<!-- userName-->
+<section class="page-section bg-white" id="status">
+    <div class="container px-4 px-lg-5">
+        <h2 class="text-center text-dark mt-0">{% if data_dict.username %}
+            {{ data_dict.username }}
+        {% else %}
+            {{ "Vous n'êtes pas connecté" }}
+        {% endif %}</h2>
+        <br>
+        <h6 class="text-center text-dark mt-0">Cet espace est réservé au personnel de la pension. Vous ne pourrez vous connecter que si vous disposez des droits nécessaires.</h4>
+    </div>
+</section>
+
+<!--Mail, Username and Password-->
+<div class="container my-2">
+    <input type="text" class="form-control" placeholder="eMail" aria-label="eMail" aria-describedby="basic-addon2" id="mail">
+</div>
+<div class="container my-2">
+    <input type="text" class="form-control" placeholder="Identifiant" aria-label="UserName" aria-describedby="basic-addon2" id="userName">
+</div>
+<div class="container my-2">
+    <input type="text" class="form-control" placeholder="Mot de passe" aria-label="Password" aria-describedby="basic-addon2" id="password">
+</div>
+
+
+<div class="container my-5 align-items-center">
+    <div class="text-center">
+        <button type="button" class="btn btn-primary col-md-4" onclick="[[[JS Fonction here !!!]]]" id="connexion">Me connecter</button>
+    </div>
+</div>
+
+
+{% if data_dict.username %}
+<div class="container my-5 align-items-center">
+    <div class="text-center">
+        <button type="button" class="btn btn-primary col-md-4" onclick="[[[JS Fonction here !!!]]]" id="updateProfileInterface">Modifier mes informations</button>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
