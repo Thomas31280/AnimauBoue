@@ -7,4 +7,6 @@ urlpatterns = [
     url(r'^connect_admin_space', views.connect_admin_space, name = "connect_admin_space"),
     url(r'^update_profile_interface', views.update_profile_interface, name = "update_profile"),
     url(r'^administration_interface', views.administration_interface, name = "administration_interface"),
+    url(r'^parks_availability', views.consult_parks_availability, name = "consult_parks_availability"),
+    url(r'^clients_profiles', views.clients_profiles, name = "clients_profiles"),
 ]

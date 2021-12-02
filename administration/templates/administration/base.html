@@ -32,7 +32,10 @@
                             <li class="nav-item"><a class="nav-link text-dark" href="#about">Présentation</a></li>
                             <li class="nav-item"><a class="nav-link text-dark" href="#services">Services</a></li>
                             <li class="nav-item"><a class="nav-link text-dark" href="#contact">Contact</a></li>
-                            <li class="nav-item"><a class="nav-link text-dark" href="#admin">Connexion</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark" href="#adminConnexion">Connexion</a></li>
+                            {% if request.user.is_superuser %}
+                                <li class="nav-item"><a class="nav-link text-dark" href="#adminInterface">Administration</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>
@@ -48,7 +51,10 @@
                             <li class="nav-item"><a class="nav-link" href="#about">Présentation</a></li>
                             <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
                             <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#admin">Connexion</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#adminConnexion">Connexion</a></li>
+                            {% if request.user.is_superuser %}
+                                <li class="nav-item"><a class="nav-link text-dark" href="#adminInterface">Administration</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>

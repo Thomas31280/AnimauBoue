@@ -1,0 +1,92 @@
+{% extends 'administration/base.html' %}
+
+{% block content %}
+<!--Importation de la feuille de style personnalisée-->
+<link href="../static/administration/css/personnal_styles.css" rel="stylesheet" />
+
+<br><br><br><br><br><br><br><br>
+
+<!--Parcs extérieurs-->
+<h2 class="text-center text-black mt-0">Voici la disponnibilité actuelle des parcs extérieurs</h2>
+<br>
+
+<div class="flex-container-global">
+    <div class="flex-item-square" style="background-color: green;">E2</div>
+    <div class="flex-item-square" style="background-color: green;">E3</div>
+    <div class="flex-item-unvisible"></div>
+    <div class="flex-item-square" style="background-color: green;">E7</div>
+    <div class="flex-item-square" style="background-color: green;">E8</div>
+</div>
+<div class="flex-container-global">
+    <div class="flex-item-square" style="background-color: green;">E6</div>
+    <div class="flex-container-bloc">
+        <div class="flex-item-rectangle" style="background-color: green;">E4</div>
+        <div class="flex-item-rectangle" style="background-color: green;">E5</div>
+    </div>
+    <div class="flex-item-unvisible"></div>
+    <div class="flex-item-unvisible"></div>
+    <div class="flex-item-unvisible"></div>
+</div>
+<div class="flex-container-global">
+    <div class="flex-item-unvisible"></div>
+</div>
+<div class="flex-container-global">
+    <div class="flex-item-unvisible-rectangle"></div>
+    <div class="flex-item-unvisible-rectangle"></div>
+    <div class="flex-item-unvisible-rectangle"></div>
+    <div class="flex-item-bigrectangle" style="background-color: green;">E1</div>
+</div>
+
+<br>
+
+<div class="container my-3">
+    <div class="text-center">
+        <button type="button" class="btn btn-primary col-md-4" onclick="DO SOMETHING">PARC E1 : STATUT</button>
+        <button type="button" class="btn btn-primary col-md-4" onclick="DO SOMETHING">PARC E2 : STATUT</button>
+    </div>
+</div>
+<div class="container my-3">
+    <div class="text-center">
+        <button type="button" class="btn btn-primary col-md-4" onclick="DO SOMETHING">PARC E3 : STATUT</button>
+        <button type="button" class="btn btn-primary col-md-4" onclick="DO SOMETHING">PARC E4 : STATUT</button>
+    </div>
+</div>
+<div class="container my-3">
+    <div class="text-center">
+        <button type="button" class="btn btn-primary col-md-4" onclick="DO SOMETHING">PARC E5 : STATUT</button>
+        <button type="button" class="btn btn-primary col-md-4" onclick="DO SOMETHING">PARC E6 : STATUT</button>
+    </div>
+</div>
+<div class="container my-3">
+    <div class="text-center">
+        <button type="button" class="btn btn-primary col-md-4" onclick="DO SOMETHING">PARC E7 : STATUT</button>
+        <button type="button" class="btn btn-primary col-md-4" onclick="DO SOMETHING">PARC E8 : STATUT</button>
+    </div>
+</div>
+
+<br><br><br>
+
+<!--Parcs intérieurs-->
+<h2 class="text-center text-black mt-0">Voici la disponnibilité actuelle des parcs intérieurs</h2>
+<br>
+
+<div class="flex-container-global" style="justify-content: right;">
+    <div class="flex-item-bigrectangle" style="background-color: green; margin-right: 20%;">I2</div>
+</div>
+<div class="flex-container-global" style="justify-content: left;">
+    <div class="flex-item-bigrectangle" style="background-color: green; margin-left: 20%;">I1</div>
+</div>
+
+
+<br>
+
+<div class="container my-3">
+    <div class="text-center">
+        <button type="button" class="btn btn-primary col-md-4" onclick="DO SOMETHING">PARC I1 : STATUT</button>
+        <button type="button" class="btn btn-primary col-md-4" onclick="DO SOMETHING">PARC I2 : STATUT</button>
+    </div>
+</div>
+
+<br><br>
+
+{% endblock %}

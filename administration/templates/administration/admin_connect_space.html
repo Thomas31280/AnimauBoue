@@ -6,8 +6,8 @@
 <!-- userName-->
 <section class="page-section bg-white" id="status">
     <div class="container px-4 px-lg-5">
-        <h2 class="text-center text-dark mt-0">{% if data_dict.username %}
-            {{ data_dict.username }}
+        <h2 class="text-center text-dark mt-0">{% if request.user.is_authenticated %}
+            {{ request.user.username }}
         {% else %}
             {{ "Vous n'êtes pas connecté" }}
         {% endif %}</h2>
@@ -35,12 +35,17 @@
 </div>
 
 
-{% if data_dict.username %}
-<div class="container my-5 align-items-center">
-    <div class="text-center">
-        <button type="button" class="btn btn-primary col-md-4" onclick="[[[JS Fonction here !!!]]]" id="updateProfileInterface">Modifier mes informations</button>
+{% if request.user.is_authenticated %}
+    <div class="container my-5 align-items-center">
+        <div class="text-center">
+            <button type="button" class="btn btn-primary col-md-4" onclick="[[[JS Fonction here !!!]]]" id="updateProfileInterface">Modifier mes informations</button>
+        </div>
     </div>
-</div>
+    <div class="container my-5 align-items-center">
+        <div class="text-center">
+            <button type="button" class="btn btn-primary col-md-4" onclick="[[[JS Fonction here !!!]]]" id="logout">Me déconnecter</button>
+        </div>
+    </div>
 {% endif %}
 
 {% endblock %}

@@ -1,0 +1,64 @@
+/* Flexboxs management for parks */
+
+.flex-container-global {
+    display: flex;
+    background-color: rgba(94, 161, 238, 0.24);
+    justify-content: space-around;
+    margin-right: 2%;
+    margin-left: 2%;
+}
+
+.flex-item-square {
+    border: 3px solid black;
+    width: 100px;
+    margin: 10px;
+    text-align: center;
+    line-height: 100px;
+    font-size: 50px;
+}
+
+.flex-item-rectangle {
+    border: 3px solid black;
+    width: 100px;
+    margin: 3px;
+    text-align: center;
+    line-height: 45px;
+    font-size: 40px;
+}
+
+.flex-container-bloc {
+    width: 50px;
+    margin: 10px;
+    text-align: center;
+    line-height: 50px;
+    font-size: 50px;
+}
+
+.flex-item-unvisible {
+    width: 128px;
+    height: 100px;
+    margin: 10px;
+    text-align: center;
+    line-height: 100px;
+    font-size: 50px;
+}
+
+.flex-item-unvisible-rectangle {
+    width: max-content;
+    height: 70px;
+    margin: 10px;
+    text-align: center;
+    line-height: 70px;
+    font-size: 50px;
+}
+
+.flex-item-bigrectangle {
+    border: 3px solid black;
+    margin: 10px;
+    width: 160px;
+    height: 80px;
+    text-align: center;
+    line-height: 80px;
+    font-size: 50px;
+    margin-right: 68px;
+}

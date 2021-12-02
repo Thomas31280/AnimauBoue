@@ -17,3 +17,11 @@ def update_profile_interface(request):
 def administration_interface(request):
     template = loader.get_template('administration/administration_interface.html')
     return HttpResponse(template.render(request=request))
+
+def consult_parks_availability(request):
+    template = loader.get_template('administration/parks_availability.html')
+    return HttpResponse(template.render(request=request))
+
+def clients_profiles(request):
+    template = loader.get_template('administration/clients.html')
+    return HttpResponse(template.render(request=request))
