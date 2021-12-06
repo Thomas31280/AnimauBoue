@@ -9,4 +9,6 @@ urlpatterns = [
     url(r'^administration_interface', views.administration_interface, name = "administration_interface"),
     url(r'^parks_availability', views.consult_parks_availability, name = "consult_parks_availability"),
     url(r'^clients_profiles', views.clients_profiles, name = "clients_profiles"),
+    url(r'^add_client_form', views.add_client_form, name = "add_client_form"),
+    url(r'^reservation_form', views.reservation_form, name = "reservation_form"),
 ]

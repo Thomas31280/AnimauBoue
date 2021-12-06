@@ -1,0 +1,43 @@
+{% extends 'administration/base.html' %}
+
+{% block content %}
+
+<!--Add client page-->
+<br><br><br><br><br><br><br><br>
+
+<!--Title and general infos-->
+<div class="container px-4 px-lg-5">
+    <h2 class="text-center text-dark mt-0">Veuillez fournir les informations suivantes :</h2>
+    <br>
+</div>
+
+<br><br><br>
+
+<!--Info client form-->
+<div class="container col-md-6" style="margin-left: 2%;">
+    <label for="clientMail">eMail :</label>
+    <input type="text" class="form-control" placeholder="ex : johndoe@protonmail.fr" aria-label="eMail" aria-describedby="basic-addon2" id="clientMail">
+</div>
+<br>
+<div class="container col-md-6" style="margin-left: 2%;">
+    <label for="clientFirstName">Prénom :</label>
+    <input type="text" class="form-control" placeholder="ex : Doe" aria-label="UserName" aria-describedby="basic-addon2" id="clientFirstName">
+</div>
+<br>
+<div class="container col-md-6" style="margin-left: 2%;">
+    <label for="clientName">Nom :</label>
+    <input type="text" class="form-control" placeholder="ex : John" aria-label="Password" aria-describedby="basic-addon2" id="clientName">
+</div>
+<br>
+<div class="container col-md-6" style="margin-left: 2%;">
+    <label for="clientPhoneNumber">Coordonnées :</label>
+    <input type="text" class="form-control" placeholder="ex : 06.10.10.10.10" aria-label="Password" aria-describedby="basic-addon2" id="clientPhoneNumber">
+</div>
+<br><br><br>
+
+<!--Validation button-->
+<div class="text-center"><button class="btn btn-primary btn-xl" id="saveNewClient" type="submit">Enregistrer</button></div>
+
+<br><br><br><br>
+
+{% endblock %}

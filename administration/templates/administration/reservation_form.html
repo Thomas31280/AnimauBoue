@@ -1,0 +1,139 @@
+{% extends 'administration/base.html' %}
+
+{% block content %}
+<!--Reservation Page-->
+<link href="../static/administration/css/personnal_styles.css" rel="stylesheet" />
+
+<!--Select a client-->
+<br><br><br><br><br><br><br><br>
+
+<!--Title and general infos-->
+<div class="container px-4 px-lg-5">
+    <h2 class="text-center text-dark mt-0">Veuillez sélectionner ou ajouter un client</h2>
+    <hr class="divider"/>
+    <br>
+</div>
+
+<!--Search Field-->
+<div class="input-group" style="width: 50%; margin-left: 25%;">
+    <input type="text" class="form-control" placeholder="Rechercher un client" aria-label="client search input field" aria-describedby="basic-addon2">
+    <div class="input-group-append">
+        <button class="btn btn-primary" type="button">Rechercher</button>
+    </div>
+</div>
+
+<br><br><br><br>
+
+<!--add new client button-->
+<div class="wrapper">
+    <a href="#" class="add_client"><h1>+</h1></a>
+    <span class="button_description">Nouveau</span>
+</div>
+
+{% if my_favorites %}
+
+    <!--Pagination position-->
+    <div class="container px-4 px-lg-5">
+        <h2 class="text-center mt-0">Page {{ my_favorites.number }} sur {{ my_favorites.paginator.num_pages }}</h2>
+    </div>
+
+    <!--Client profile-->
+    <div>
+        <div class="container-fluid text-center p-0">
+            <div class="row g-0">
+
+                <!-- On va itérer sur la liste de queryset passée à paginator, et on va afficher les données dans le template-->
+                    <div class="col-lg-4 col-sm-12">
+                        <a class="portfolio-box" href="../aliment/?query={{favorite.url}}" title="{{favorite.product_name}}">
+                            <img class="img-fluid p-4" src="{{favorite.img_url}}" alt="{{favorite.product_name}}" />
+                            <div class="portfolio-box-caption">
+                                <div class="project-name">{{favorite.product_name}}</div>
+                            </div>
+                        </a>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Pagination-->
+    <div class="pagination" style="justify-content: center;">
+
+        <span class="step-links">
+            {% if my_favorites.has_previous %}
+                <a href="?query={{product_name}}&page=1">&laquo; Première page</a>
+                <a href="?query={{product_name}}&page={{ aliments.previous_page_number }}">Précédent</a>
+            {% endif %}
+
+            {% if my_favorites.has_next %}
+                <a href="?query={{product_name}}&page={{ aliments.next_page_number }}">Suivant</a>
+                <a href="?query={{product_name}}&page={{ aliments.paginator.num_pages }}">dernière page &raquo;</a>
+            {% endif %}
+        </span>
+
+        <span class="current">
+            Page {{ my_favorites.number }} sur {{ my_favorites.paginator.num_pages }}
+        </span>
+
+    </div>
+{% endif %}
+
+<br><br><br>
+
+<!--Title and general infos Dog part-->
+<div class="container px-4 px-lg-5">
+    <h2 class="text-center text-dark mt-0">Veuillez fournir les informations suivantes :</h2>
+    <hr class="divider" />
+    <br><br><br>
+</div>
+
+<!--Info dog form-->
+<div class="container col-md-6" style="margin-left: 2%;">
+    <label for="dogName">Nom du chien :</label>
+    <input type="text" class="form-control" placeholder="ex : Medor" aria-label="DogName" aria-describedby="basic-addon2" id="dogName">
+</div>
+<br>
+<div class="container col-md-6" style="margin-left: 2%;">
+    <label for="commentaries">Commentaires :</label>
+    <input type="text" class="form-control" placeholder="ex : Donner comprimé 2x /j" aria-label="Infos" aria-describedby="basic-addon2" id="commentaries">
+</div>
+<br><br>
+
+<!--Select date-->
+<div class="container col-md-6" style="margin-left: 2%;">
+    <label for="dateOfArrival">Du :</label>
+    <input type="datetime-local" id="dateOfArrival" min="2022-01-01T00:00" max="2060-12-31T23:59">
+</div>
+<br>
+<div class="container col-md-6" style="margin-left: 2%;">
+    <label for="dateOfDeparture">Au :</label>
+    <input type="datetime-local" id="dateOfDeparture" min="2022-01-01T00:00" max="2060-12-31T23:59">
+</div>
+<br><br>
+
+<!--Select Park-->
+<div class="container col-md-6" style="margin-left: 2%;">
+    <form method="post" action="traitement.php">
+        <p>
+            <label for="selectPark">Sélectionnez un parc :</label><br />
+            <select id="selectPark">
+                <option value="E1">Parc E1</option>
+                <option value="E2">Parc E2</option>
+                <option value="E3">Parc E3</option>
+                <option value="E4">Parc E4</option>
+                <option value="E5">Parc E5</option>
+                <option value="E6">Parc E6</option>
+                <option value="E7">Parc E7</option>
+                <option value="E8">Parc E8</option>
+                <option value="I1">Parc I1</option>
+                <option value="I2">Parc I2</option>
+            </select>
+        </p>
+    </form>
+</div>
+<br><br><br>
+
+<!--Validation button-->
+<div class="text-center"><button class="btn btn-primary btn-xl" id="saveReservation" type="submit">Enregistrer</button></div>
+
+<br><br><br><br>
+{% endblock %}

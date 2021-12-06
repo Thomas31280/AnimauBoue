@@ -25,3 +25,11 @@ def consult_parks_availability(request):
 def clients_profiles(request):
     template = loader.get_template('administration/clients.html')
     return HttpResponse(template.render(request=request))
+
+def add_client_form(request):
+    template = loader.get_template('administration/add_client_form.html')
+    return HttpResponse(template.render(request=request))
+
+def reservation_form(request):
+    template = loader.get_template('administration/reservation_form.html')
+    return HttpResponse(template.render(request=request))

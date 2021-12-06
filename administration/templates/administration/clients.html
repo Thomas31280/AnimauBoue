@@ -1,18 +1,18 @@
 {% extends 'administration/base.html' %}
 
 {% block content %}
+<link href="../static/administration/css/personnal_styles.css" rel="stylesheet" />
 
-<!--Favorites Page-->
+<!--Clients Page-->
 <br><br><br><br><br><br><br><br>
-<!--Title and general infos-->
 
+<!--Title and general infos-->
 <div class="container px-4 px-lg-5">
     <h2 class="text-center text-dark mt-0">Fiches clients</h2>
     <br>
 </div>
 
 <!--Search Field-->
-
 <div class="input-group" style="width: 50%; margin-left: 25%;">
     <input type="text" class="form-control" placeholder="Rechercher un client" aria-label="client search input field" aria-describedby="basic-addon2">
     <div class="input-group-append">
@@ -22,11 +22,16 @@
 
 <br><br><br><br>
 
-<!--Pagination position-->
+<!--add new client button-->
+<div class="wrapper">
+    <a href="#" class="add_client"><h1>+</h1></a>
+    <span class="button_description">Nouveau</span>
+</div>
 
+<!--Pagination position-->
 <div class="container px-4 px-lg-5">
     <h2 class="text-center mt-0">Page {{ my_favorites.number }} sur {{ my_favorites.paginator.num_pages }}</h2>
-    <hr class="divider" />
+    <hr class="divider"/>
 </div>
 
 <!--Client profile-->
@@ -71,3 +76,4 @@
 <br><br>
 
 {% endblock %}
+
