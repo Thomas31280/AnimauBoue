@@ -67,12 +67,11 @@
 /* Button add_client*/
 
 .wrapper{
-    position: fixed;
-    top: 28%;
-    left: 92%;
-    transform: translate(-50%, -50%);
+    position: relative;
+    left: 88%;
+    top: -16%;
 }
-  
+
 .add_client{
     display: block;
     width: 50px;

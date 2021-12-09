@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'user.apps.UserConfig',
+    "phonenumber_field",                                         # On ajoute la librairie phonenumber_field non présente nativement dans Django
     'administration.apps.AdministrationConfig',
     'django.contrib.admin',
     'django.contrib.auth',

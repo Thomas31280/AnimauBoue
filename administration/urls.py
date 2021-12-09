@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^clients_profiles', views.clients_profiles, name = "clients_profiles"),
     url(r'^add_client_form', views.add_client_form, name = "add_client_form"),
     url(r'^reservation_form', views.reservation_form, name = "reservation_form"),
+    url(r'^arrival-departure_interface', views.arrival_and_departure_interface, name = "arrival-departure_interface"),
 ]

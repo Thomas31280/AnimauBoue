@@ -1,13 +1,15 @@
 {% extends 'administration/base.html' %}
 
 {% block content %}
+
 <!--Connexion Form-->
 <br><br><br><br><br>
+
 <!-- userName-->
 <section class="page-section bg-white" id="statut">
     <div class="container px-4 px-lg-5">
-        <h2 class="text-center text-dark mt-0">{% if request.user.is_authenticated %}
-            {{ request.user.username }}
+        <h2 class="text-center text-dark mt-0">{% if user.is_authenticated %}
+            {{ user.username }}
         {% else %}
             {{ "Vous n'êtes pas connecté" }}
         {% endif %}</h2>
@@ -17,33 +19,30 @@
 </section>
 
 <!--Mail, Username and Password-->
-<div class="container my-2">
-    <input type="text" class="form-control" placeholder="eMail" aria-label="eMail" aria-describedby="basic-addon2" id="mail">
-</div>
-<div class="container my-2">
-    <input type="text" class="form-control" placeholder="Identifiant" aria-label="UserName" aria-describedby="basic-addon2" id="userName">
-</div>
-<div class="container my-2">
-    <input type="text" class="form-control" placeholder="Mot de passe" aria-label="Password" aria-describedby="basic-addon2" id="password">
-</div>
+<form action="/connect_admin_space/" method="post">
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="container my-2">
+            {{ field }}
+        </div>
+    {% endfor %}
 
-
-<div class="container my-5 align-items-center">
-    <div class="text-center">
-        <button type="button" class="btn btn-primary col-md-4" onclick="[[[JS Fonction here !!!]]]" id="connexion">Me connecter</button>
-    </div>
-</div>
-
-
-{% if request.user.is_authenticated %}
     <div class="container my-5 align-items-center">
         <div class="text-center">
-            <button type="button" class="btn btn-primary col-md-4" onclick="[[[JS Fonction here !!!]]]" id="updateProfileInterface">Modifier mes informations</button>
+            <input type="submit" value="Me connecter" class="btn btn-primary col-md-4">
+        </div>
+    </div>
+</form>
+
+{% if user.is_authenticated %} 
+    <div class="container my-5 align-items-center">
+        <div class="text-center">
+            <a href="/update_profile_interface/"><button type="button" class="btn btn-primary col-md-4">Modifier mes informations</button></a>
         </div>
     </div>
     <div class="container my-5 align-items-center">
         <div class="text-center">
-            <button type="button" class="btn btn-primary col-md-4" onclick="[[[JS Fonction here !!!]]]" id="logout">Me déconnecter</button>
+            <a href="#########"><button type="button" class="btn btn-primary col-md-4">Me déconnecter</button></a>
         </div>
     </div>
 {% endif %}

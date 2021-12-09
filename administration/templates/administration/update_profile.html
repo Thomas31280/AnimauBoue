@@ -3,42 +3,34 @@
 {% block content %}
 <br><br><br><br><br><br><br><br>
 
-<!--Old Mail, UserName and Password-->
+
 <h4 class="text-center text-black mt-0">Veuillez référencer les informations actuelles associées à votre profil :</h4>
-<div class="container my-5">
-    <div class="container my-2">
-        <input type="text" class="form-control" placeholder="eMail actuel" aria-label="current mail" aria-describedby="basic-addon2" id="oldMail">
-    </div>
-    <div class="container my-2">
-        <input type="text" class="form-control" placeholder="Identifiant actuel" aria-label="current username" aria-describedby="basic-addon2" id="oldUserName">
-    </div>
-    <div class="container my-2">
-        <input type="text" class="form-control" placeholder="Mot de passe actuel" aria-label="current password" aria-describedby="basic-addon2" id="oldPassword">
-    </div>
-</div>
+<form action="/update_profile_interface/" method="post"><br>
+    {% csrf_token %}
 
-<br><br><br>
-<!--New Mail, UserName and Password-->
-<h4 class="text-center text-black mt-0">Veuillez référencer les nouvelles informations à associer à votre profil :</h4>
-<div class="container my-5">
-    <div class="container my-2">
-        <input type="text" class="form-control" placeholder="Nouvel eMail" aria-label="new mail" aria-describedby="basic-addon2" id="newMail">
-    </div>
-    <div class="container my-2">
-        <input type="text" class="form-control" placeholder="Nouvel identifiant" aria-label="new username" aria-describedby="basic-addon2" id="newUserName">
-    </div>
-    <div class="container my-2">
-        <input type="text" class="form-control" placeholder="Nouveau mot de passe" aria-label="new password" aria-describedby="basic-addon2" id="newPassword">
-    </div>
-    <div class="container my-2">
-        <input type="text" class="form-control" placeholder="Confirmez votre nouveau mot de passe" aria-label="new password confirmation" aria-describedby="basic-addon2" id="newPasswordConfirmation">
-    </div>
-</div>
+    <!--Old Mail, UserName and Password-->
+    {% for field in current_datas %}
+        <div class="container my-2">
+            {{ field }}
+        </div>
+    {% endfor %}
 
-<div class="container my-5">
-    <div class="text-center">
-        <button type="button" class="btn btn-primary col-md-4" onclick="[[[JS FUNCTION HERE !!!]]]">Confirmer mes modifications</button>
+    <br><br><br>
+    
+    <h4 class="text-center text-black mt-0">Veuillez référencer les nouvelles informations à associer à votre profil :</h4><br>
+    
+    <!--New Mail, UserName and Password-->
+    {% for field in new_datas %}
+    <div class="container my-2">
+        {{ field }}
     </div>
-</div>
+    {% endfor %}
+
+    <div class="container my-5 align-items-center">
+        <div class="text-center">
+            <input type="submit" value="Confirmer mes modifications" class="btn btn-primary col-md-4">
+        </div>
+    </div>
+</form>
 
 {% endblock %}

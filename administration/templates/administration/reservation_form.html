@@ -3,13 +3,15 @@
 {% block content %}
 <!--Reservation Page-->
 <link href="../static/administration/css/personnal_styles.css" rel="stylesheet" />
+<script src="../static/administration/js/my_scripts.js"></script>
+
 
 <!--Select a client-->
 <br><br><br><br><br><br><br><br>
 
 <!--Title and general infos-->
 <div class="container px-4 px-lg-5">
-    <h2 class="text-center text-dark mt-0">Veuillez sélectionner ou ajouter un client</h2>
+    <h2 class="text-center text-dark mt-0">Veuillez sélectionner ou créer un client</h2>
     <hr class="divider"/>
     <br>
 </div>
@@ -26,7 +28,7 @@
 
 <!--add new client button-->
 <div class="wrapper">
-    <a href="#" class="add_client"><h1>+</h1></a>
+    <a href="/add_client_form/" class="add_client"><h1>+</h1></a>
     <span class="button_description">Nouveau</span>
 </div>
 
@@ -77,63 +79,132 @@
     </div>
 {% endif %}
 
-<br><br><br>
+<!--Test de la fonction JS d'attribution de l'id client au field et de l'affichage du nom du client sélectionné-->
+<button class="btn btn-primary" type="button" onclick="toggleParkSelection(2, 'Célestin Rachid')">test JS function</button>
 
-<!--Title and general infos Dog part-->
-<div class="container px-4 px-lg-5">
-    <h2 class="text-center text-dark mt-0">Veuillez fournir les informations suivantes :</h2>
-    <hr class="divider" />
-    <br><br><br>
-</div>
+<form action="/reservation_form/" method="post">
+    {% csrf_token %}
+    {% csrf_token %}
+    {% csrf_token %}
+    {% csrf_token %}
+    {% csrf_token %}
 
-<!--Info dog form-->
-<div class="container col-md-6" style="margin-left: 2%;">
-    <label for="dogName">Nom du chien :</label>
-    <input type="text" class="form-control" placeholder="ex : Medor" aria-label="DogName" aria-describedby="basic-addon2" id="dogName">
-</div>
-<br>
-<div class="container col-md-6" style="margin-left: 2%;">
-    <label for="commentaries">Commentaires :</label>
-    <input type="text" class="form-control" placeholder="ex : Donner comprimé 2x /j" aria-label="Infos" aria-describedby="basic-addon2" id="commentaries">
-</div>
-<br><br>
+    <div id="selectedClient" style="display: none;"><h5 id="clientName" class="text-center"></h5>
+        {{park_and_client.client_id}}<br><br><br>
 
-<!--Select date-->
-<div class="container col-md-6" style="margin-left: 2%;">
-    <label for="dateOfArrival">Du :</label>
-    <input type="datetime-local" id="dateOfArrival" min="2022-01-01T00:00" max="2060-12-31T23:59">
-</div>
-<br>
-<div class="container col-md-6" style="margin-left: 2%;">
-    <label for="dateOfDeparture">Au :</label>
-    <input type="datetime-local" id="dateOfDeparture" min="2022-01-01T00:00" max="2060-12-31T23:59">
-</div>
-<br><br>
 
-<!--Select Park-->
-<div class="container col-md-6" style="margin-left: 2%;">
-    <form method="post" action="traitement.php">
-        <p>
-            <label for="selectPark">Sélectionnez un parc :</label><br />
-            <select id="selectPark">
-                <option value="E1">Parc E1</option>
-                <option value="E2">Parc E2</option>
-                <option value="E3">Parc E3</option>
-                <option value="E4">Parc E4</option>
-                <option value="E5">Parc E5</option>
-                <option value="E6">Parc E6</option>
-                <option value="E7">Parc E7</option>
-                <option value="E8">Parc E8</option>
-                <option value="I1">Parc I1</option>
-                <option value="I2">Parc I2</option>
-            </select>
-        </p>
-    </form>
-</div>
-<br><br><br>
+        <!--Select park-->
+        <div class="container px-4 px-lg-5">
+            <h2 class="text-center text-dark mt-0">Veuillez sélectionner un parc :</h2>
+            <hr class="divider"/>
+            <br><br>
+        </div>
+        <div class="container col-md-6" style="margin-left: 2%;">
+            <p>{{park_and_client.park.label}}</p>
+            {{park_and_client.park}}
+        </div><br><br><br>
 
-<!--Validation button-->
-<div class="text-center"><button class="btn btn-primary btn-xl" id="saveReservation" type="submit">Enregistrer</button></div>
+        <!--Title and general infos Dog part-->
+        <div class="container px-4 px-lg-5">
+            <h2 class="text-center text-dark mt-0">Veuillez fournir les informations suivantes :</h2>
+            <hr class="divider"/>
+            <br><br><br>
+        </div>
 
-<br><br><br><br>
+        <!--Info dog form-->
+        {% for field in dog_1 %}
+        <div class="container col-md-6" style="margin-left: 2%;">
+            <p>{{ field.label }}</p>
+            {{ field }}
+        </div><br>
+        {% endfor %}<br><br><br>
+
+        <!--Second Chien-->
+        <div class="container" style="margin-left: 2%;">
+            <button class="btn btn-primary" type="button" onclick="toggleForm('dog2')">Second chien</button>
+        </div>
+        <div id="dog2" style="display: none;">
+            <!--Title and general infos Dog part-->
+            <div class="container px-4 px-lg-5">
+                <h4 class="text-center text-dark mt-0">Second chien :</h4>
+                <hr class="divider"/>
+                <br><br><br>
+            </div>
+
+            <!--Info dog form-->
+            {% for field in dog_2 %}
+            <div class="container col-md-6" style="margin-left: 2%;">
+                <p>{{ field.label }}</p>
+                {{ field }}
+            </div><br>
+            {% endfor %}<br><br><br>
+
+            <!--Troisième Chien-->
+            <div class="container" style="margin-left: 2%;">
+                <button class="btn btn-primary" type="button" onclick="toggleForm('dog3')">Troisième chien</button>
+            </div>
+            <div id="dog3" style="display: none;">
+                <!--Title and general infos Dog part-->
+                <div class="container px-4 px-lg-5">
+                    <h4 class="text-center text-dark mt-0">Troisième chien :</h4>
+                    <hr class="divider"/>
+                    <br><br><br>
+                </div>
+
+                <!--Info dog form-->
+                {% for field in dog_3 %}
+                <div class="container col-md-6" style="margin-left: 2%;">
+                    <p>{{ field.label }}</p>
+                    {{ field }}
+                </div><br>
+                {% endfor %}<br><br><br>
+
+                <!--Quatrième Chien-->
+                <div class="container" style="margin-left: 2%;">
+                    <button class="btn btn-primary" type="button" onclick="toggleForm('dog4')">Quatrième chien</button>
+                </div>
+                <div id="dog4" style="display: none;">
+                    <!--Title and general infos Dog part-->
+                    <div class="container px-4 px-lg-5">
+                        <h4 class="text-center text-dark mt-0">Quatrième chien :</h4>
+                        <hr class="divider"/>
+                        <br><br><br>
+                    </div>
+
+                    <!--Info dog form-->
+                    {% for field in dog_4 %}
+                    <div class="container col-md-6" style="margin-left: 2%;">
+                        <p>{{ field.label }}</p>
+                        {{ field }}
+                    </div><br>
+                    {% endfor %}<br><br><br>
+
+                    <!--Cinquième Chien-->
+                    <div class="container" style="margin-left: 2%;">
+                        <button class="btn btn-primary" type="button" onclick="toggleForm('dog5')">Cinquième chien</button>
+                    </div>
+                    <div id="dog5" style="display: none;">
+                        <!--Title and general infos Dog part-->
+                        <div class="container px-4 px-lg-5">
+                            <h4 class="text-center text-dark mt-0">Cinquième chien :</h4>
+                            <hr class="divider"/>
+                            <br><br><br>
+                        </div>
+
+                        <!--Info dog form-->
+                        {% for field in dog_5 %}
+                        <div class="container col-md-6" style="margin-left: 2%;">
+                            <p>{{ field.label }}</p>
+                            {{ field }}
+                        </div><br>
+                        {% endfor %}<br><br><br>
+                    </div>
+                </div>
+            </div></div><br><br>
+        
+        <!--Validation button-->
+        <div class="text-center"><input class="btn btn-primary btn-xl" type="submit" value="Enregistrer"></input></div><br><br><br><br>
+
+    </div>
+</form>
 {% endblock %}
