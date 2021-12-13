@@ -5,11 +5,28 @@
 <script src="../static/administration/js/my_scripts.js"></script>
 
 <br><br><br><br><br><br><br><br>
+
+
 <!--Title and general infos-->
 <div class="container px-4 px-lg-5">
     <h2 class="text-center text-dark mt-0">Occupation des parcs</h2>
     <hr class="divider"/>
     <br>
 </div>
+<div class="text-center">
+    <h6 class="text-center text-dark mt-0">Pour la période :</h6>
+    <br>
+    <form method="post" onclick="return AJAX">
+        {% csrf_token %}
+        {% for field in time_frame %}
+            {{ field.label }}
+            {{ field }}
+            &emsp;
+        {% endfor %}
+        <input id="ajax-call" type="submit" value="Afficher">
+    </form>
+    <!-- Nous afficherons le résultat de l'opération ici -->
+<p id="ajax"></p>
+</div><br><br><br><br>
 
 {% endblock %}

@@ -4,18 +4,20 @@
 
 <!--Connexion Form-->
 <br><br><br><br><br>
+{% include 'administration/messages.html' %}
 
 <!-- userName-->
 <section class="page-section bg-white" id="statut">
     <div class="container px-4 px-lg-5">
-        <h2 class="text-center text-dark mt-0">{% if user.is_authenticated %}
+        <h2 class="text-center text-dark mt-0">
+        {% if user.is_authenticated %}
             {{ user.username }}
         {% else %}
-            {{ "Vous n'êtes pas connecté" }}
-        {% endif %}</h2>
-        <br>
-        <h6 class="text-center text-dark mt-0">Cet espace est réservé au personnel de la pension. Vous ne pourrez vous connecter que si vous disposez des droits nécessaires.</h4>
-    </div>
+            {{ "Vous n'êtes pas connecté" }}<br><br>
+            <h6 class="text-center text-dark mt-0">Cet espace est réservé au personnel de la pension. Vous ne pourrez vous connecter que si vous disposez des droits nécessaires.</h4>
+        {% endif %}
+        </h2>
+        </div>
 </section>
 
 <!--Mail, Username and Password-->
@@ -26,12 +28,13 @@
             {{ field }}
         </div>
     {% endfor %}
-
-    <div class="container my-5 align-items-center">
-        <div class="text-center">
-            <input type="submit" value="Me connecter" class="btn btn-primary col-md-4">
+    {% if user.is_authenticated == False %}
+        <div class="container my-5 align-items-center">
+            <div class="text-center">
+                <input type="submit" value="Me connecter" class="btn btn-primary col-md-4">
+            </div>
         </div>
-    </div>
+    {% endif %}
 </form>
 
 {% if user.is_authenticated %} 
@@ -42,7 +45,7 @@
     </div>
     <div class="container my-5 align-items-center">
         <div class="text-center">
-            <a href="#########"><button type="button" class="btn btn-primary col-md-4">Me déconnecter</button></a>
+            <a href="/logout"><button type="button" class="btn btn-primary col-md-4">Me déconnecter</button></a>
         </div>
     </div>
 {% endif %}

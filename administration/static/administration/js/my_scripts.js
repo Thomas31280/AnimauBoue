@@ -1,5 +1,4 @@
 //Show or hide new form for a reservation, with update of the "required" parameters of the fields concerned
-
 function toggleForm(id){
     var form = document.getElementById(id);
     var dog_name = document.getElementById('name_'+id);
@@ -32,7 +31,6 @@ function toggleForm(id){
 
 
 //When user has selected a client, the following forms are displayed
-
 function toggleParkSelection(id, client_name){
     document.getElementById('client_id').value = id;
     document.getElementById('clientName').innerHTML = "Vous avez sélectionné le client : " + client_name;
