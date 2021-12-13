@@ -52,3 +52,7 @@ class SelectTimeFrameForm(forms.Form):
 
     month = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width: 100px;', 'class': 'margin-left: 50%;', 'id': 'month'}), choices=MONTHS, label="Mois :")
     year = forms.ChoiceField(widget=forms.Select(attrs={'style': 'width: 80px;', 'class': 'margin-left: 50%;', 'id': 'year'}), choices=YEARS, label="Année :")
+
+
+class AddDog(forms.Form):
+    name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'ex : Séraphin', 'class': 'form-control'}), label="Nouveau chien :", max_length=30)

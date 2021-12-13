@@ -45,14 +45,14 @@
             <div class="row g-0">
 
                 <!-- On va itérer sur la liste de queryset passée à paginator, et on va afficher les données dans le template-->
-                    <div class="col-lg-4 col-sm-12">
-                        <a class="portfolio-box" href="../aliment/?query={{favorite.url}}" title="{{favorite.product_name}}">
-                            <img class="img-fluid p-4" src="{{favorite.img_url}}" alt="{{favorite.product_name}}" />
-                            <div class="portfolio-box-caption">
-                                <div class="project-name">{{favorite.product_name}}</div>
-                            </div>
-                        </a>
-                    </div>
+                <div class="col-lg-4 col-sm-12">
+                    <a class="portfolio-box" href="../aliment/?query={{favorite.url}}" title="{{favorite.product_name}}">
+                        <img class="img-fluid p-4" src="{{favorite.img_url}}" alt="{{favorite.product_name}}" />
+                        <div class="portfolio-box-caption">
+                            <div class="project-name">{{favorite.product_name}}</div>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

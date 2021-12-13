@@ -6,13 +6,14 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
-from .forms import ConnectionForm, UpdateDataForm, AddClientForm, SelectParkAndClientForm, DogForm, SelectTimeFrameForm
+from .forms import ConnectionForm, UpdateDataForm, AddClientForm, SelectParkAndClientForm, DogForm, SelectTimeFrameForm, AddDog
 from django.contrib.auth.models import User
-from administration.models import Clients
+from administration.models import Clients, Dogs
 
 def index(request):
     template = loader.get_template('administration/index.html')
     return HttpResponse(template.render(request=request))
+
 
 def connect_admin_space(request):
 
@@ -44,11 +45,13 @@ def connect_admin_space(request):
 
     return render(request, 'administration/admin_connect_space.html', {'form': form})
 
+
 @login_required
 def user_logout(request):
     logout(request)
     messages.success(request, 'Vous avez été déconnecté avec succès')
     return HttpResponseRedirect('/connect_admin_space')
+
 
 @login_required
 def update_profile_interface(request):
@@ -93,14 +96,18 @@ def update_profile_interface(request):
 
     return render(request, 'administration/update_profile.html', {'current_datas': current_datas, 'new_datas': new_datas})
 
+
 def administration_interface(request):
     template = loader.get_template('administration/administration_interface.html')
     return HttpResponse(template.render(request=request))
+
 
 def consult_parks_availability(request):
     template = loader.get_template('administration/parks_availability.html')
     return HttpResponse(template.render(request=request))
 
+
+@user_passes_test(lambda u: u.is_superuser)
 def clients_profiles(request):
     clients_list = Clients.objects.all()                                                           # Liste de tous les clients de la DB
     paginator = Paginator(clients_list, 18)                                                        # On utilise paginator sur la liste
@@ -108,6 +115,21 @@ def clients_profiles(request):
     page_objs = paginator.get_page(page_number)                                                    # On définit une variable page_objs qui va stocker les éléments de la page actuelle de l'instance de Paginator paginator précédemment créée
 
     return render(request, 'administration/clients.html', {'page_objs': page_objs})                # On retourne le bon template et on lui passe le dictionnaire contenant les objets de la page ( page_objs )
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def client(request):
+    client_id = request.GET.get('client')
+    
+    try:                                                                                           # On tente de dérouler le scénario dans lequel le client est présent en base de données
+        client = Clients.objects.get(id=client_id)
+        return render(request, 'administration/client_profile.html', {'client': client})
+    
+    except Exception:
+        messages.error(request, "Le client demandé n'existe pas. Veuillez en choisir un parmi la liste ci-dessous")    
+        # redirect to a new URL:
+        return HttpResponseRedirect('/clients_profiles/')
+
 
 @user_passes_test(lambda u: u.is_superuser)
 def add_client_form(request):
@@ -138,6 +160,7 @@ def add_client_form(request):
         add_client_form = AddClientForm()
 
     return render(request, 'administration/add_client_form.html', {'add_client_form': add_client_form})
+
 
 def reservation_form(request):
 
@@ -186,6 +209,7 @@ def reservation_form(request):
 
     return render(request, 'administration/reservation_form.html', {'park_and_client': park_and_client, 'dog_1': dog_1, 'dog_2': dog_2, 'dog_3': dog_3, 'dog_4': dog_4, 'dog_5': dog_5})
 
+
 @user_passes_test(lambda u: u.is_superuser)
 def arrival_and_departure_interface(request):
     
@@ -204,3 +228,116 @@ def arrival_and_departure_interface(request):
     else:
         time_frame = SelectTimeFrameForm()
     return render(request, 'administration/arrival-departure_interface.html', {'time_frame': time_frame})
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def delete_client(request):
+    
+    client_id = request.POST.get('client_id')
+    client_phone = request.POST.get('client_phone')
+    client = Clients.objects.get(id=client_id)
+
+    if client.phone == client_phone:                                                               # On vérifie la cohérence des deux fields passés à la vue. Si cette correspondance est mauvaise, cela signifie que l'utilisateur a tenté de modifier la valeur des inputs du formulaire dans le code HTML
+        client.delete()
+        messages.success(request, "Le client a bien été supprimé de la base de données")
+        return HttpResponseRedirect('/clients_profiles/')
+    
+    else:
+        messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
+        return HttpResponseRedirect('/clients_profiles/')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def update_client(request):
+    
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        update = AddClientForm(request.POST)
+        client_id = request.POST.get('client_id')                                                  # On récupère les inputs cachés ( qui permettent d'identifier le client à update )
+        client_phone = request.POST.get('current_phone')
+        client = Clients.objects.get(id=client_id)
+        
+        if client.phone == client_phone:                                                           # On vérifie que le couple de données est bien cohérent ( pour prévenir les actions frauduleuses côté HTML )
+            # check whether it's valid:
+            if update.is_valid():
+                # process the data in form.cleaned_data as required
+                client.first_name = update.cleaned_data['firstName']
+                client.name = update.cleaned_data['name']
+                client.email = update.cleaned_data['email']
+                client.phone = update.cleaned_data['phone']
+                client.save()
+
+                messages.success(request, 'Le profil client a été mis à jour avec succès')
+                # redirect to a new URL:
+                return HttpResponseRedirect('/clients_profiles/')
+            
+            else:
+                messages.error(request, 'Il semblerait que les informations soient incorrectes. Processus interrompu')
+                # redirect to a new URL:
+                return HttpResponseRedirect('/client/?client='+client_id)
+        
+        else:
+            messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
+            return HttpResponseRedirect('/clients_profiles/')
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        client_id = request.GET.get('client')
+        client_phone = request.GET.get('client_phone')
+        client = Clients.objects.get(id=client_id)
+        
+        if client.phone == '+'+client_phone:
+            update = AddClientForm()
+
+            update.fields['firstName'].initial = client.first_name
+            update.fields['name'].initial = client.name
+            update.fields['phone'].initial = client.phone
+            update.fields['email'].initial = client.email
+
+            return render(request, 'administration/update_client.html', {'client': client, 'update': update})
+        
+        else:
+            messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
+            return HttpResponseRedirect('/clients_profiles/')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def add_dog(request):
+        
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        dog_form = DogForm(request.POST)
+        client_id = request.POST.get('client_id')                                                  # On récupère les inputs cachés ( qui permettent d'identifier le client à update )
+        client_phone = request.POST.get('client_phone')
+        client = Clients.objects.get(id=client_id)
+        
+        if client.phone == client_phone:                                                           # On vérifie que le couple de données est bien cohérent ( pour prévenir les actions frauduleuses côté HTML )
+            # check whether it's valid:
+            if dog_form.is_valid():
+                # process the data in form.cleaned_data as required
+                Dogs(name=dog_form.cleaned_data['name'], owner=client).save()
+
+                messages.success(request, 'Nouveau chien ajouté avec succès')
+                # redirect to a new URL:
+                return HttpResponseRedirect('/client/?client='+client_id)
+        
+        else:
+            messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
+            return HttpResponseRedirect('/clients_profiles/')
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        client_id = request.GET.get('client')
+        client_phone = request.GET.get('client_phone')
+        client = Clients.objects.get(id=client_id)
+        
+        if client.phone == '+'+client_phone:
+            dog_form = AddDog()
+
+            return render(request, 'administration/add_dog.html', {'client': client, 'dog_form': dog_form})
+        
+        else:
+            messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
+            return HttpResponseRedirect('/clients_profiles/')

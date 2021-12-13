@@ -1,0 +1,26 @@
+{% extends 'administration/base.html' %}
+
+{% block content %}
+
+<!--Clients Page-->
+<br><br><br><br><br>{% include 'administration/messages.html' %}<br><br><br>
+
+<!--Client name-->
+<div class="container px-4 px-lg-5">
+    <h1 class="text-center mt-0">Chien(s) de {{client.first_name}} {{client.name}}</h1>
+    <hr class="divider"/>
+</div><br><br>
+
+<form action="/add_dog/" method="post">
+    {% csrf_token %}
+    <div class="container col-md-7 input-group" style="margin-left: 2%;">
+        {{dog_form.name}}
+        <div class="input-group-append col-md-7">
+            <input type="submit" class="btn btn-primary" value="Ajouter">
+        </div>
+    </div>
+    <input type="number" value="{{client.id}}" name="client_id" hidden>
+    <input type="tel" value="{{client.phone}}" name="client_phone" hidden>
+</form><br><br><br>
+
+{% endblock %}

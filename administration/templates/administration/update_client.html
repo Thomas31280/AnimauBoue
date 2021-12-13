@@ -1,0 +1,37 @@
+{% extends 'administration/base.html' %}
+
+{% block content %}
+
+<!--Add client page-->
+<br><br><br><br><br>{% include 'administration/messages.html' %}<br><br><br>
+
+<!--Title and general infos-->
+<div class="container px-4 px-lg-5">
+    <h2 class="text-center text-dark mt-0">Mise à jour des informations client :</h2>
+    <br>
+</div><br><br><br>
+
+<!--Info client form-->
+<form action="/update_client/" method="post">
+    {% csrf_token %}
+    <!--Forms cachés qui permettront de retrouver le client à update. Comme dans client_profile.html, on va procéder à
+    l'envoie de deux infos différentes au sujet du client. De cette manière, en vérifiant dans la vue la cohérence 
+    de ces infos en base de données, on s'assure que l'utilisateur n'a pas modifié de manière frauduleuse les inputs 
+    client_id et client_phone dans le HTML !!!-->
+    <input type="number" value="{{client.id}}" name="client_id" hidden>
+    <input type="tel" value="{{client.phone}}" name="current_phone" hidden>
+    <!--Form, with current datas-->
+    {% for field in update %}
+        <div class="container col-md-6" style="margin-left: 2%;">
+            {{ field.label }}
+            {{ field }}
+        </div>
+        <br>
+    {% endfor %}
+    <br><br><br>
+    
+    <!--Validation button-->
+    <div class="text-center"><input type="submit" class="btn btn-primary btn-xl" value="Mettre  à  jour"></div>
+</form><br><br><br><br>
+
+{% endblock %}

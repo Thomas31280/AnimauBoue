@@ -1,0 +1,51 @@
+{% extends 'administration/base.html' %}
+
+{% block content %}
+
+<!--Clients Page-->
+<br><br><br><br><br>{% include 'administration/messages.html' %}<br><br><br>
+
+<!--Client name-->
+<div class="container px-4 px-lg-5">
+    <h1 class="text-center mt-0">Profil de {{client.first_name}} {{client.name}}</h1>
+    <hr class="divider"/>
+</div><br>
+
+<!--Client profile-->
+<div>
+    <div class="container-fluid text-center p-0">
+        <h4>Nom : {{client.name}}</h4>
+        <h4>Prénom : {{client.first_name}}</h4>
+        <h4>Téléphone : {{client.phone}}</h4>
+        {% if client.email %}
+            <h4>eMail : {{client.email}}</h4>
+        {% endif %}<br><br>
+        <h4>Chien(s) :</h4>
+    </div>
+</div><br><br><br>
+
+<div class="container my-5 align-items-center">
+    <div class="text-center">
+        <a href="/add_dog/?client={{client.id}}&client_phone={{client.phone}}"><button type="button" class="btn btn-primary col-md-4">Ajouter / supprimer un chien</button></a>
+    </div>
+</div>
+<div class="container my-5 align-items-center">
+    <div class="text-center">
+        <a href="/update_client/?client={{client.id}}&client_phone={{client.phone}}"><button type="button" class="btn btn-primary col-md-4">Modifier les informations client</button></a>
+    </div>
+</div>
+<form action="/delete_client/" method="post">
+    {% csrf_token %}
+    <!--On va envoyer un couple de données dans notre requête post. De cette manière, si un utilisateur tente de modifier
+    la valeur de l'input, la requête échouera, car une vérification de la correspondance entre l'id client et le numéro
+    de téléphone sera effectué dans la vue !-->
+    <input type="number" value="{{client.id}}" name="client_id" hidden>
+    <input type="tel" value="{{client.phone}}" name="client_phone" hidden>
+    <div class="container my-5 align-items-center">
+        <div class="text-center">
+            <input type="submit" value="Supprimer client" class="btn btn-primary col-md-4">
+        </div>
+    </div>
+</form>
+
+{% endblock %}

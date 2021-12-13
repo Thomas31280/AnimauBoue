@@ -36,3 +36,4 @@ function toggleParkSelection(id, client_name){
     document.getElementById('clientName').innerHTML = "Vous avez sélectionné le client : " + client_name;
     document.getElementById('selectedClient').style.display = "block";
 }
+
