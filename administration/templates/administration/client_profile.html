@@ -1,6 +1,7 @@
 {% extends 'administration/base.html' %}
 
 {% block content %}
+<script src="../static/administration/js/my_scripts.js"></script>
 
 <!--Clients Page-->
 <br><br><br><br><br>{% include 'administration/messages.html' %}<br><br><br>
@@ -20,7 +21,10 @@
         {% if client.email %}
             <h4>eMail : {{client.email}}</h4>
         {% endif %}<br><br>
-        <h4>Chien(s) :</h4>
+        <h4>Chien(s) : </h4>
+        {% for dog in dogs %}
+            <h6>{{dog}}</h6>
+        {% endfor %}
     </div>
 </div><br><br><br>
 
@@ -43,9 +47,14 @@
     <input type="tel" value="{{client.phone}}" name="client_phone" hidden>
     <div class="container my-5 align-items-center">
         <div class="text-center">
-            <input type="submit" value="Supprimer client" class="btn btn-primary col-md-4">
+            <input type="submit" class="btn btn-primary col-md-4" id="delete_client_btn" hidden>
         </div>
     </div>
 </form>
+<div class="container my-5 align-items-center">
+    <div class="text-center">
+        <button type="button" class="btn btn-primary col-md-4" onclick="deleteConfirmation('delete_client_btn')">Supprimer client</button>
+    </div>
+</div>
 
 {% endblock %}

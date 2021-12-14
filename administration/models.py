@@ -27,7 +27,7 @@ class Dogs(models.Model):
 
 
 class Parks(models.Model):
-    name = models.CharField(max_length=2)
+    name = models.CharField(max_length=2, unique=True)
     availability = models.BooleanField()
 
     def __str__(self):

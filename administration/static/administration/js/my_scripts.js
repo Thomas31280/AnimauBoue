@@ -37,3 +37,11 @@ function toggleParkSelection(id, client_name){
     document.getElementById('selectedClient').style.display = "block";
 }
 
+
+//When user want to delete something, ask him to confirm his action
+function deleteConfirmation(id){
+    var result = confirm("Attention, la suppression est irréversible ! Confirmez-vous votre choix ?");
+    if (result) {
+        document.getElementById(id).click();
+    }
+}

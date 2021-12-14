@@ -1,6 +1,7 @@
 {% extends 'administration/base.html' %}
 
 {% block content %}
+<script src="../static/administration/js/my_scripts.js"></script>
 
 <!--Clients Page-->
 <br><br><br><br><br>{% include 'administration/messages.html' %}<br><br><br>
@@ -9,7 +10,23 @@
 <div class="container px-4 px-lg-5">
     <h1 class="text-center mt-0">Chien(s) de {{client.first_name}} {{client.name}}</h1>
     <hr class="divider"/>
-</div><br><br>
+</div><br><br><br>
+
+{% for dog in dogs %}
+    <form action="/delete_dog/" method="post">
+        {% csrf_token %}    
+        <div class="container input-group col-md-7">
+            <div>
+                <h5>- {{dog}}</h5>
+            </div>
+            <input type="submit" class="btn" id="deleteDog{{dog.id}}" hidden>
+            <button type="button" class="btn btn-danger btn-sm" style="margin-left: 3%;" onclick="deleteConfirmation('deleteDog{{dog.id}}')">Supprimer</button>
+        </div>
+        <div></div>
+        <input type="number" value="{{dog.id}}" name="dog_id" hidden>
+        <input type="number" value="{{dog.owner_id}}" name="owner" hidden>
+    </form><br>
+{% endfor %}<br><br><br>
 
 <form action="/add_dog/" method="post">
     {% csrf_token %}
