@@ -18,4 +18,5 @@ urlpatterns = [
     url(r'^arrival-departure_interface', views.arrival_and_departure_interface, name = "arrival-departure_interface"),
     url(r'^add_dog/$', views.add_dog, name = "add_dog"),
     url(r'^delete_dog/$', views.delete_dog, name = "delete_dog"),
+    url(r'^add_reservation/$', views.add_reservation, name = "add_reservation"),
 ]

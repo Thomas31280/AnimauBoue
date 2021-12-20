@@ -4,10 +4,7 @@
 <!--Reservation Page-->
 <link href="../static/administration/css/personnal_styles.css" rel="stylesheet" />
 <script src="../static/administration/js/my_scripts.js"></script>
-
-
-<!--Select a client-->
-<br><br><br><br><br><br><br><br>
+<br><br><br><br><br>{% include 'administration/messages.html' %}<br><br><br>
 
 <!--Title and general infos-->
 <div class="container px-4 px-lg-5">
@@ -17,12 +14,15 @@
 </div>
 
 <!--Search Field-->
-<div class="input-group" style="width: 50%; margin-left: 25%;">
-    <input type="text" class="form-control" placeholder="Rechercher un client" aria-label="client search input field" aria-describedby="basic-addon2">
-    <div class="input-group-append">
-        <button class="btn btn-primary" type="button">Rechercher</button>
+<form action="/reservation_form/" method="post">
+    {% csrf_token %}
+    <div class="input-group" style="width: 50%; margin-left: 25%;">
+        <input type="text" class="form-control" placeholder="Rechercher un client" name="recherche_client" aria-label="client search input field" aria-describedby="basic-addon2">
+        <div class="input-group-append">
+            <input type="submit" class="btn btn-primary" value="Rechercher">
+        </div>
     </div>
-</div>
+</form>
 
 <br><br><br><br>
 
@@ -32,57 +32,25 @@
     <span class="button_description">Nouveau</span>
 </div>
 
-{% if my_favorites %}
-
-    <!--Pagination position-->
-    <div class="container px-4 px-lg-5">
-        <h2 class="text-center mt-0">Page {{ my_favorites.number }} sur {{ my_favorites.paginator.num_pages }}</h2>
-    </div>
-
-    <!--Client profile-->
+{% if clients %}
     <div>
         <div class="container-fluid text-center p-0">
             <div class="row g-0">
-
-                <!-- On va itérer sur la liste de queryset passée à paginator, et on va afficher les données dans le template-->
+                <!-- On va itérer sur la liste de queryset, et on va afficher les données dans le template-->
+                {% for client in clients %}
                 <div class="col-lg-4 col-sm-12">
-                    <a class="portfolio-box" href="../aliment/?query={{favorite.url}}" title="{{favorite.product_name}}">
-                        <img class="img-fluid p-4" src="{{favorite.img_url}}" alt="{{favorite.product_name}}" />
-                        <div class="portfolio-box-caption">
-                            <div class="project-name">{{favorite.product_name}}</div>
-                        </div>
-                    </a>
+                    <img class="img-fluid p-4" src="../static/administration/assets/img/portfolio/thumbnails/1.jpg" alt="{{client.first_name}}"/>
+                    <button class="btn btn-primary" onclick="toggleParkSelection({{client.id}}, '{{client.first_name}} {{client.name}}' )">
+                        <div class="project-name">{{client.first_name}} {{client.name}}</div>
+                    </button>
                 </div>
+                {% endfor %}
             </div>
         </div>
     </div>
+{% endif %}<br><br>
 
-    <!--Pagination-->
-    <div class="pagination" style="justify-content: center;">
-
-        <span class="step-links">
-            {% if my_favorites.has_previous %}
-                <a href="?query={{product_name}}&page=1">&laquo; Première page</a>
-                <a href="?query={{product_name}}&page={{ aliments.previous_page_number }}">Précédent</a>
-            {% endif %}
-
-            {% if my_favorites.has_next %}
-                <a href="?query={{product_name}}&page={{ aliments.next_page_number }}">Suivant</a>
-                <a href="?query={{product_name}}&page={{ aliments.paginator.num_pages }}">dernière page &raquo;</a>
-            {% endif %}
-        </span>
-
-        <span class="current">
-            Page {{ my_favorites.number }} sur {{ my_favorites.paginator.num_pages }}
-        </span>
-
-    </div>
-{% endif %}
-
-<!--Test de la fonction JS d'attribution de l'id client au field et de l'affichage du nom du client sélectionné-->
-<button class="btn btn-primary" type="button" onclick="toggleParkSelection(2, 'Célestin Rachid')">test JS function</button>
-
-<form action="/reservation_form/" method="post">
+<form action="/add_reservation/" method="post">
     {% csrf_token %}
     {% csrf_token %}
     {% csrf_token %}
@@ -103,6 +71,7 @@
             <p>{{park_and_client.park.label}}</p>
             {{park_and_client.park}}
         </div><br><br><br>
+
 
         <!--Title and general infos Dog part-->
         <div class="container px-4 px-lg-5">
@@ -201,6 +170,10 @@
                     </div>
                 </div>
             </div></div><br><br>
+            <div class="container col-md-6 text-center">
+                <label for="prix" class="text-center">Prix total :</label><br>
+                <input type="number" name="price" required placeholder="ex : 115" id="prix" name='price'>
+            </div><br><br><br>
         
         <!--Validation button-->
         <div class="text-center"><input class="btn btn-primary btn-xl" type="submit" value="Enregistrer"></input></div><br><br><br><br>

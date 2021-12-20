@@ -1,11 +1,9 @@
 {% extends 'administration/base.html' %}
 
 {% block content %}
+{% load custom_tags %}
 <link href="../static/administration/css/personnal_styles.css" rel="stylesheet"/>
-<script src="../static/administration/js/my_scripts.js"></script>
-
-<br><br><br><br><br><br><br><br>
-
+<br><br><br><br><br>{% include 'administration/messages.html' %}<br><br>
 
 <!--Title and general infos-->
 <div class="container px-4 px-lg-5">
@@ -13,6 +11,7 @@
     <hr class="divider"/>
     <br>
 </div>
+
 <div class="text-center">
     <h6 class="text-center text-dark mt-0">Pour la période :</h6>
     <br>
@@ -25,8 +24,89 @@
         {% endfor %}
         <input id="ajax-call" type="submit" value="Afficher">
     </form>
-    <!-- Nous afficherons le résultat de l'opération ici -->
-<p id="ajax"></p>
-</div><br><br><br><br>
+</div>
+
+<!--add reservation button-->
+<div class="wrapper">
+    <a href="/reservation_form/" class="add_client"><h1>+</h1></a>
+    <span class="button_description">Réserver</span>
+</div>
+
+
+<!--Création d'un tableau pour le mois -->
+{% if reservations %}
+    <table style="border-collapse: collapse; width:100%" class="text-center text-dark mt-0">
+        <tr>
+            <th style="border: 1px solid black; width:9%">Date</th>
+            {% for park in parks %}
+            <th style="border: 1px solid black; width:9%">{{park}}</th>
+            {% endfor %}
+        </tr>
+        {% for date in days_of_month %}
+            <tr>
+                <td style="border: 1px solid black; width:9%">{{date|date}}</td>
+                {% for park in parks %}
+                    {% with park.id as park_id %}
+                    <td style="border: 1px solid black; {%if not park.availability%}background-color: rgba(231, 14, 14, 0.719){%endif%}; width:9%">
+                        {% for reservation in reservations %}
+                            {% if reservation.park.id == park_id %}
+                                {% if reservation.dog_1_arrival|before_or_equal_date:date and date|before_or_equal_date:reservation.dog_1_departure%}
+                                    {% if reservation.dog_1_arrival|equal_to_date:date %}
+                                        {{reservation.dog_1}} ( Arrivée à {{reservation.dog_1_arrival|time}} )<br>
+                                    {% elif reservation.dog_1_departure|equal_to_date:date %}
+                                        {{reservation.dog_1}} ( Départ à {{reservation.dog_1_departure|time}} )<br>
+                                    {% else %}
+                                        {{reservation.dog_1}}<br>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if reservation.dog_2_arrival|before_or_equal_date:date and date|before_or_equal_date:reservation.dog_2_departure %}
+                                    {% if reservation.dog_2_arrival|equal_to_date:date %}
+                                        {{reservation.dog_2}} ( Arrivée à {{reservation.dog_2_arrival|time}} )<br>
+                                    {% elif reservation.dog_2_departure|equal_to_date:date %}
+                                        {{reservation.dog_2}} ( Départ à {{reservation.dog_2_departure|time}} )<br>
+                                    {% else %}
+                                        {{reservation.dog_2}}<br>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if reservation.dog_3_arrival|before_or_equal_date:date and date|before_or_equal_date:reservation.dog_3_departure %}
+                                    {% if reservation.dog_3_arrival|equal_to_date:date %}
+                                        {{reservation.dog_3}} ( Arrivée à {{reservation.dog_3_arrival|time}} )<br>
+                                    {% elif reservation.dog_3_departure|equal_to_date:date %}
+                                        {{reservation.dog_3}} ( Départ à {{reservation.dog_3_departure|time}} )<br>
+                                    {% else %}
+                                        {{reservation.dog_3}}<br>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if reservation.dog_4_arrival|before_or_equal_date:date and date|before_or_equal_date:reservation.dog_4_departure %}
+                                    {% if reservation.dog_4_arrival|equal_to_date:date %}
+                                        {{reservation.dog_4}} ( Arrivée à {{reservation.dog_4_arrival|time}} )<br>
+                                    {% elif reservation.dog_4_departure|equal_to_date:date %}
+                                        {{reservation.dog_4}} ( Départ à {{reservation.dog_4_departure|time}} )<br>
+                                    {% else %}
+                                        {{reservation.dog_4}}<br>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if reservation.dog_5_arrival|before_or_equal_date:date and date|before_or_equal_date:reservation.dog_5_departure %}
+                                    {% if reservation.dog_5_arrival|equal_to_date:date %}
+                                        {{reservation.dog_5}} ( Arrivée à {{reservation.dog_5_arrival|time}} )<br>
+                                    {% elif reservation.dog_5_departure|equal_to_date:date %}
+                                        {{reservation.dog_5}} ( Départ à {{reservation.dog_5_departure|time}} )<br>
+                                    {% else %}
+                                        {{reservation.dog_5}}<br>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    {% endwith %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}
 
 {% endblock %}

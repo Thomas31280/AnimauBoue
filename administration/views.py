@@ -5,10 +5,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.utils.timezone import make_aware
+from django.utils import timezone
+import datetime, calendar
 
 from .forms import ConnectionForm, UpdateDataForm, AddClientForm, SelectParkAndClientForm, DogForm, SelectTimeFrameForm, AddDog
 from django.contrib.auth.models import User
-from administration.models import Clients, Dogs, Parks
+from administration.models import Clients, Dogs, Parks, Reservations
 
 def index(request):
     template = loader.get_template('administration/index.html')
@@ -122,13 +125,12 @@ def parks_availability(request):
                 update.availability = True
                 update.save()
             
-            messages.success(request, 'Le statut du parc a été mis à jour avec succès')
+            messages.success(request, 'Le statut du parc '+update.name+' a été mis à jour avec succès')
             return HttpResponseRedirect('/parks_availability')
 
     # if a GET (or any other method) we'll just pass all the Parks instances to the template in a dict
     else:
         parks = Parks.objects.all().order_by('id')                                                 # On pense bien à ordonner les querysets pour avoir une liste toujours prévisible !
-        print(parks)
 
     return render(request, 'administration/parks_availability.html', {'parks': parks})
 
@@ -188,53 +190,128 @@ def add_client_form(request):
 
     return render(request, 'administration/add_client_form.html', {'add_client_form': add_client_form})
 
-####A faire, vue non fonctionnelle !####
+
+"""
+Pour chercher un client, pouvoir le sélectionner et fournir
+les formulaires de réservation
+"""
+@user_passes_test(lambda u: u.is_superuser)
 def reservation_form(request):
 
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
-        park_and_client = SelectParkAndClientForm(request.POST)
-        dog_1 = DogForm(request.POST)
-        dog_2 = DogForm(request.POST)
-        dog_3 = DogForm(request.POST)
-        dog_4 = DogForm(request.POST)
-        dog_5 = DogForm(request.POST)
-        # check whether it's valid:
-        if park_and_client.is_valid() and dog_1.is_valid() and dog_2.is_valid() and dog_3.is_valid() and dog_4.is_valid() and dog_5.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-            # redirect to a new URL:
-            return HttpResponseRedirect('/thanks/')
-
-    # if a GET (or any other method) we'll create a blank form
-    else:
+        search = request.POST.get("recherche_client")
         
-        i=2
-        fields = ['name', 'commentaries', 'arrival_date', 'departure_date']
+        # On va chercher le client en base de données, en utilisant bien la méthode __icontains pour rendre la recherche insensible à la casse et faire ressortir les résultats qui contiennent la recherche sans être exactement identiques
+        clients = Clients.objects.filter(first_name__icontains=search) | Clients.objects.filter(name__icontains=search)
+        
+        if clients:
+            #On prépare tous les formulaires nécessaires
+            i=2
+            fields = ['name', 'arrival_date', 'departure_date']
 
-        park_and_client = SelectParkAndClientForm()
-        dog_1 = DogForm()                                                      # On créé un formulaire basé sur forms.DogForm et on initialise le paramètre required de tous les fields ( sauf commentaries ) à True ( conséquence, les fields du premier formulaire seront obligatoire !!! )
-
-        for field in fields:
-            if field != 'commentaries':
-                dog_1.fields[field].required = True
-
-        dog_2 = DogForm()                                                      # Puis on va succéssivement créer 4 autres forms basés sur forms.DogForm en mettant à jour les id de leurs fields à chaque fois ( on va se servir de ces id dans le template pour pouvoir set leurs paramètres required à True si le formulaire est display, et False s'il est hide !!! )
-        dog_3 = DogForm()
-        dog_4 = DogForm()
-        dog_5 = DogForm()
-
-        forms = [dog_2, dog_3, dog_4, dog_5]
-
-        for form in forms:
+            park_and_client = SelectParkAndClientForm()
+            dog_1 = DogForm()                                                      # On créé un formulaire basé sur forms.DogForm et on initialise le paramètre required de tous les fields ( sauf commentaries ) à True ( conséquence, les fields du premier formulaire seront obligatoire !!! )
+            
             for field in fields:
-                form.fields[field].widget.attrs['id'] = field+"_dog"+str(i)
-                print(form.fields[field].widget.attrs['id'])
-            i+=1
-        
+                    dog_1.fields[field].required = True
 
-    return render(request, 'administration/reservation_form.html', {'park_and_client': park_and_client, 'dog_1': dog_1, 'dog_2': dog_2, 'dog_3': dog_3, 'dog_4': dog_4, 'dog_5': dog_5})
+            dog_2 = DogForm()                                                      # Puis on va succéssivement créer 4 autres forms basés sur forms.DogForm en mettant à jour les id de leurs fields à chaque fois ( on va se servir de ces id dans le template pour pouvoir set leurs paramètres required à True si le formulaire est display, et False s'il est hide !!! )
+            dog_3 = DogForm()
+            dog_4 = DogForm()
+            dog_5 = DogForm()
+
+            forms = [dog_2, dog_3, dog_4, dog_5]
+
+            for form in forms:
+                for field in fields:
+                    form.fields[field].widget.attrs['id'] = field+"_dog"+str(i)
+                    form.prefix = 'form'+str(i)
+                i+=1
+        
+            return render(request, 'administration/reservation_form.html', {'park_and_client': park_and_client, 'clients': clients, 'dog_1': dog_1, 'dog_2': dog_2, 'dog_3': dog_3, 'dog_4': dog_4, 'dog_5': dog_5})
+        
+        else:
+            messages.error(request, "Aucun client correspondant à votre recherche n'a été trouvé")
+            return HttpResponseRedirect('/reservation_form/')
+
+    else:
+
+        return render(request, 'administration/reservation_form.html')
+
+
+"""
+Pour récupérer les formulaires de la vue reservation_form
+et process les datas pour insérer une nouvelle réservation
+dans la DB
+"""
+@user_passes_test(lambda u: u.is_superuser)
+def add_reservation(request):
+
+    # Si la requête est de type post, on va traiter les données des formulaires reçus
+    if request.method == 'POST':
+        # On récupère les formulaires
+        park_and_client = SelectParkAndClientForm(request.POST)
+        price = request.POST.get('price')
+        # On utilise bien les préfixes des forms, car on a utilisé le même form plusieurs fois dans le template !
+        dog_1 = DogForm(request.POST, prefix='form1')
+        dog_2 = DogForm(request.POST, prefix='form2')
+        dog_3 = DogForm(request.POST, prefix='form3')
+        dog_4 = DogForm(request.POST, prefix='form4')
+        dog_5 = DogForm(request.POST, prefix='form5')
+
+        # On check que tous les forms sont valides, et on process les datas des forms si c'est ok
+        if park_and_client.is_valid() and dog_1.is_valid() and dog_2.is_valid() and dog_3.is_valid() and dog_4.is_valid() and dog_5.is_valid():
+            # On prépare tous les éléments dont on va avoir besoin
+            dogs_forms = [dog_1.cleaned_data, dog_2.cleaned_data, dog_3.cleaned_data, dog_4.cleaned_data, dog_5.cleaned_data]
+            client = Clients.objects.get(id=park_and_client.cleaned_data['client_id'])
+            park = Parks.objects.get(id=park_and_client.cleaned_data['park'])
+            datas = {'price': price}
+            
+            if client and park:
+                datas['client'] = client
+                datas['park'] = park
+                i=1
+                for dog_form in dogs_forms:
+                    # Sous entendu 'si le formulaire n'est pas vide', car name est set à required = True
+                    if dog_form['name']:
+                        try:
+                            dog = Dogs.objects.get(name__iexact=dog_form['name'], owner=client)
+                            if dog:
+                                for field in dog_form:
+                                    if field != 'name':
+                                        datas[field+'_dog_'+str(i)] = dog_form[field]
+                                    else:
+                                        datas['dog_'+str(i)] = dog
+
+                        except Exception:
+                            messages.error(request, "Au moins l'un des chiens référencés lors de la réservation n'est pas référencé en base de données. Veuillez vérifier vos informations")
+                            return HttpResponseRedirect('/reservation_form/')
+                    
+                    else:
+                        for field in dog_form:
+                            if field != 'name':
+                                datas[field+'_dog_'+str(i)] = dog_form[field]
+                            else:
+                                datas['dog_'+str(i)] = None
+                    i+=1
+
+                # Maintenant que nous avons récupéré toutes les données dans un dictionnaire, on va les insérer dans la table
+                Reservations(price=datas['price'], client=datas['client'], park=datas['park'], dog_1=datas['dog_1'],
+                             dog_2=datas['dog_2'], dog_3=datas['dog_3'], dog_4=datas['dog_4'], dog_5=datas['dog_5'],
+                             dog_1_arrival=datas['arrival_date_dog_1'], dog_2_arrival=datas['arrival_date_dog_2'],
+                             dog_3_arrival=datas['arrival_date_dog_3'], dog_4_arrival=datas['arrival_date_dog_4'],
+                             dog_5_arrival=datas['arrival_date_dog_5'], dog_1_departure=datas['departure_date_dog_1'],
+                             dog_2_departure=datas['departure_date_dog_2'], dog_3_departure=datas['departure_date_dog_3'],
+                             dog_4_departure=datas['departure_date_dog_4'], dog_5_departure=datas['departure_date_dog_5']).save()
+
+                messages.success(request, "La réservation a bien été prise enregistrée !")
+                return HttpResponseRedirect('/arrival-departure_interface/')
+
+            else:
+                messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
+                return HttpResponseRedirect('/arrival-departure_interface/')
 
 
 ####A faire, vue non fonctionnelle !####
@@ -244,13 +321,38 @@ def arrival_and_departure_interface(request):
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
-        year = request.POST.get('year')
-        month = request.POST.get('month')
+        time_frame = SelectTimeFrameForm(request.POST)
         # check whether it's valid:
-        if year and month:
+        if time_frame.is_valid():
             # process the data in form.cleaned_data as required
-            print(year, month)
-            return HttpResponseRedirect('/arrival-departure_interface/')
+            year = int(time_frame.cleaned_data['year'])
+            month = int(time_frame.cleaned_data['month'])
+            num_days = calendar.monthrange(year, month)[1]
+            # On détermine le premier et dernier jour du mois, en utilisant le module datetime pour créer un objet de type datetime, et en utilisant sur cet objet la méthode django make_aware, qui permet de donner à l'objet datetime un attribut .tzinfo, qui contient des informations sur la timezone. Sans cela, il serait impossible de faire une compraison avec les datetimes présents en base de données
+            first_day = make_aware(datetime.datetime(year, month, 1))
+            last_day = make_aware(datetime.datetime(year, month, num_days))
+            
+            reservations = Reservations.objects.filter(dog_1_arrival__gte=first_day, dog_1_arrival__lte=last_day) | (
+                           Reservations.objects.filter(dog_1_departure__gte=first_day, dog_1_departure__lte=last_day)) | (
+                           Reservations.objects.filter(dog_2_arrival__gte=first_day, dog_2_arrival__lte=last_day)) | (
+                           Reservations.objects.filter(dog_2_departure__gte=first_day, dog_2_departure__lte=last_day)) | (
+                           Reservations.objects.filter(dog_3_arrival__gte=first_day, dog_3_arrival__lte=last_day)) | (
+                           Reservations.objects.filter(dog_3_departure__gte=first_day, dog_3_departure__lte=last_day)) | (
+                           Reservations.objects.filter(dog_4_arrival__gte=first_day, dog_4_arrival__lte=last_day)) | (
+                           Reservations.objects.filter(dog_4_departure__gte=first_day, dog_4_departure__lte=last_day)) | (
+                           Reservations.objects.filter(dog_5_arrival__gte=first_day, dog_5_arrival__lte=last_day)) | (
+                           Reservations.objects.filter(dog_5_departure__gte=first_day, dog_5_departure__lte=last_day))
+
+            if reservations:
+                parks = Parks.objects.all().order_by('id')
+                # On créé une liste de tous les datetime de la période sélectionnée
+                days_of_month = [make_aware(datetime.datetime(year, month, day)) for day in range(1, num_days+1)]
+
+                return render(request, 'administration/arrival-departure_interface.html', {'reservations': reservations, 'days_of_month': days_of_month, 'time_frame': time_frame, 'parks': parks})
+
+            else:
+                messages.error(request, "Aucune réservation n'a été trouvée pour cette période")
+                return HttpResponseRedirect('/arrival-departure_interface/')
 
     # if a GET (or any other method) we'll create a blank form
     else:
@@ -298,7 +400,7 @@ def update_client(request):
 
                 messages.success(request, 'Le profil client a été mis à jour avec succès')
                 # redirect to a new URL:
-                return HttpResponseRedirect('/clients_profiles/')
+                return HttpResponseRedirect('/clients_profiles/')            
             
             else:
                 messages.error(request, 'Il semblerait que les informations soient incorrectes. Processus interrompu')
