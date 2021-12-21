@@ -1,0 +1,136 @@
+{% extends 'administration/base.html' %}
+
+{% block content %}
+<!--Modify Reservation Page-->
+<link href="../static/administration/css/personnal_styles.css" rel="stylesheet" />
+<script src="../static/administration/js/my_scripts.js"></script>
+<br><br><br><br><br>{% include 'administration/messages.html' %}<br><br><br>
+
+<form action="/update_reservation/" method="post">
+    {% csrf_token %}
+    {% csrf_token %}
+    {% csrf_token %}
+    {% csrf_token %}
+    {% csrf_token %}
+    <div id="selectedClient" style="display: none;">{{park_and_client.client_id}}</div>
+        <input type="number" required value="{{reservation.client.id}}" name='client' style="display: none;">
+        <input type="number" required value="{{reservation.id}}" name='reservation' style="display: none;">
+        <!--Select park-->
+        <div class="container px-4 px-lg-5">
+            <h2 class="text-center text-dark mt-0">Parc associé à la réservation :</h2>
+            <hr class="divider"/>
+            <br><br>
+        </div>
+        <div class="container col-md-6" style="margin-left: 2%;">
+            <p>{{park_and_client.park.label}}</p>
+            {{park_and_client.park}}
+        </div><br><br><br>
+
+        <!--Title and general infos Dog part-->
+        <div class="container px-4 px-lg-5">
+            <h2 class="text-center text-dark mt-0">Veuillez mettre à jour les informations si nécessaire :</h2>
+            <hr class="divider"/>
+            <br><br><br>
+        </div>
+
+        <!--Info dog form-->
+        {% for field in dog_1 %}
+        <div class="container col-md-6" style="margin-left: 2%;">
+            <p>{{ field.label }}</p>
+            {{ field }}
+        </div><br>
+        {% endfor %}<br><br><br>
+
+        <!--Second Chien-->
+        <div class="container" style="margin-left: 2%;">
+            <button class="btn btn-primary" type="button" onclick="toggleForm('dog2')">Second chien</button>
+        </div>
+        <div id="dog2" style="display: none;">
+            <!--Title and general infos Dog part-->
+            <div class="container px-4 px-lg-5">
+                <h4 class="text-center text-dark mt-0">Second chien :</h4>
+                <hr class="divider"/>
+                <br><br><br>
+            </div>
+
+            <!--Info dog form-->
+            {% for field in dog_2 %}
+            <div class="container col-md-6" style="margin-left: 2%;">
+                <p>{{ field.label }}</p>
+                {{ field }}
+            </div><br>
+            {% endfor %}<br><br><br>
+
+            <!--Troisième Chien-->
+            <div class="container" style="margin-left: 2%;">
+                <button class="btn btn-primary" type="button" onclick="toggleForm('dog3')">Troisième chien</button>
+            </div>
+            <div id="dog3" style="display: none;">
+                <!--Title and general infos Dog part-->
+                <div class="container px-4 px-lg-5">
+                    <h4 class="text-center text-dark mt-0">Troisième chien :</h4>
+                    <hr class="divider"/>
+                    <br><br><br>
+                </div>
+
+                <!--Info dog form-->
+                {% for field in dog_3 %}
+                <div class="container col-md-6" style="margin-left: 2%;">
+                    <p>{{ field.label }}</p>
+                    {{ field }}
+                </div><br>
+                {% endfor %}<br><br><br>
+
+                <!--Quatrième Chien-->
+                <div class="container" style="margin-left: 2%;">
+                    <button class="btn btn-primary" type="button" onclick="toggleForm('dog4')">Quatrième chien</button>
+                </div>
+                <div id="dog4" style="display: none;">
+                    <!--Title and general infos Dog part-->
+                    <div class="container px-4 px-lg-5">
+                        <h4 class="text-center text-dark mt-0">Quatrième chien :</h4>
+                        <hr class="divider"/>
+                        <br><br><br>
+                    </div>
+
+                    <!--Info dog form-->
+                    {% for field in dog_4 %}
+                    <div class="container col-md-6" style="margin-left: 2%;">
+                        <p>{{ field.label }}</p>
+                        {{ field }}
+                    </div><br>
+                    {% endfor %}<br><br><br>
+
+                    <!--Cinquième Chien-->
+                    <div class="container" style="margin-left: 2%;">
+                        <button class="btn btn-primary" type="button" onclick="toggleForm('dog5')">Cinquième chien</button>
+                    </div>
+                    <div id="dog5" style="display: none;">
+                        <!--Title and general infos Dog part-->
+                        <div class="container px-4 px-lg-5">
+                            <h4 class="text-center text-dark mt-0">Cinquième chien :</h4>
+                            <hr class="divider"/>
+                            <br><br><br>
+                        </div>
+
+                        <!--Info dog form-->
+                        {% for field in dog_5 %}
+                        <div class="container col-md-6" style="margin-left: 2%;">
+                            <p>{{ field.label }}</p>
+                            {{ field }}
+                        </div><br>
+                        {% endfor %}<br><br><br>
+                    </div>
+                </div>
+            </div></div><br><br>
+            <div class="container col-md-6 text-center">
+                <label for="prix" class="text-center">Prix total :</label><br>
+                <input type="number" name="price" required placeholder="ex : 115" id="prix" name='price' value="{{reservation.price}}">
+            </div><br><br><br>
+        
+        <!--Validation button-->
+        <div class="text-center"><input class="btn btn-primary btn-xl" type="submit" value="Enregistrer"></input></div><br><br><br><br>
+
+    </div>
+</form>
+{% endblock %}

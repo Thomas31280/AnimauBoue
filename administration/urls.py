@@ -19,4 +19,7 @@ urlpatterns = [
     url(r'^add_dog/$', views.add_dog, name = "add_dog"),
     url(r'^delete_dog/$', views.delete_dog, name = "delete_dog"),
     url(r'^add_reservation/$', views.add_reservation, name = "add_reservation"),
+    url(r'^client_reservations/$', views.client_reservations, name = "client_reservations"),
+    url(r'^delete_reservation', views.delete_reservation, name = "delete_reservation"),
+    url(r'^update_reservation', views.update_reservation, name = "update_reservation"),
 ]

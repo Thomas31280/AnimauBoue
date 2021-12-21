@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.utils.timezone import make_aware
 from django.utils import timezone
-import datetime, calendar
+import datetime, calendar, pytz
 
 from .forms import ConnectionForm, UpdateDataForm, AddClientForm, SelectParkAndClientForm, DogForm, SelectTimeFrameForm, AddDog
 from django.contrib.auth.models import User
@@ -137,7 +137,24 @@ def parks_availability(request):
 
 @user_passes_test(lambda u: u.is_superuser)
 def clients_profiles(request):
-    clients_list = Clients.objects.all()                                                           # Liste de tous les clients de la DB
+
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        search = request.POST.get("recherche_client")
+
+        # On va chercher le client en base de données, en utilisant bien la méthode __icontains pour rendre la recherche insensible à la casse et faire ressortir les résultats qui contiennent la recherche sans être exactement identiques
+        clients = Clients.objects.filter(first_name__icontains=search) | Clients.objects.filter(name__icontains=search)
+
+        if clients:
+            clients_list = clients
+
+        else:
+            clients_list = Clients.objects.all()
+            messages.error(request, "Aucun client correspondant à votre recherche n'a été trouvé en base de données")
+
+    else:
+        clients_list = Clients.objects.all()                                                       # Liste de tous les clients de la DB
+
     paginator = Paginator(clients_list, 18)                                                        # On utilise paginator sur la liste
     page_number = request.GET.get('page')                                                          # On récupère le numéro de la page actuelle dans l'URL
     page_objs = paginator.get_page(page_number)                                                    # On définit une variable page_objs qui va stocker les éléments de la page actuelle de l'instance de Paginator paginator précédemment créée
@@ -438,7 +455,7 @@ def add_dog(request):
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
-        dog_form = DogForm(request.POST)
+        dog_form = AddDog(request.POST)
         client_id = request.POST.get('client_id')                                                  # On récupère les inputs cachés ( qui permettent d'identifier le client à update )
         client_phone = request.POST.get('client_phone')
         client = Clients.objects.get(id=client_id)
@@ -489,3 +506,174 @@ def delete_dog(request):
     else:
         messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
         return HttpResponseRedirect('/client/?client='+owner)
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def client_reservations(request):
+    
+    client_id = request.GET.get('client')
+    client_phone = request.GET.get('client_phone')
+    client = Clients.objects.get(id=client_id)
+    
+    if client.phone == '+'+client_phone:
+        # On ordonne les résultats du plus récent au plus ancien
+        reservations = Reservations.objects.filter(client=client_id).order_by('-dog_1_arrival')
+
+        return render(request, 'administration/client_reservations.html', {'reservations': reservations, 'client': client})
+    else:
+        messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
+        return HttpResponseRedirect('/clients_profiles/')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def delete_reservation(request):
+    
+    reservation_id = request.POST.get('reservation_id')
+    client = request.POST.get('client')
+    reservation = Reservations.objects.get(id=reservation_id)
+
+    if reservation.client.id == int(client):
+        reservation.delete()
+        messages.success(request, "La réservation a été supprimée avec succès")
+        return HttpResponseRedirect('/client/?client='+client)
+    
+    else:
+        messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
+        return HttpResponseRedirect('/clients_profiles/')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def update_reservation(request):
+
+    # Si la requête est de type post, on va traiter les données des formulaires reçus
+    if request.method == 'POST':
+        # On récupère les formulaires
+        park_and_client = SelectParkAndClientForm(request.POST)
+        price = request.POST.get('price')
+        client_id = request.POST.get('client')
+        client = Clients.objects.get(id=client_id)
+        reservation_id = request.POST.get('reservation')
+        reservation = Reservations.objects.get(id=reservation_id)
+        # On utilise bien les préfixes des forms, car on a utilisé le même form plusieurs fois dans le template !
+        dog_1 = DogForm(request.POST, prefix='form1')
+        dog_2 = DogForm(request.POST, prefix='form2')
+        dog_3 = DogForm(request.POST, prefix='form3')
+        dog_4 = DogForm(request.POST, prefix='form4')
+        dog_5 = DogForm(request.POST, prefix='form5')
+
+        # On check que tous les forms sont valides, et on process les datas des forms si c'est ok
+        if park_and_client.is_valid() and dog_1.is_valid() and dog_2.is_valid() and dog_3.is_valid() and dog_4.is_valid() and dog_5.is_valid():
+            # On prépare tous les éléments dont on va avoir besoin
+            dogs_forms = [dog_1.cleaned_data, dog_2.cleaned_data, dog_3.cleaned_data, dog_4.cleaned_data, dog_5.cleaned_data]
+            park = Parks.objects.get(id=park_and_client.cleaned_data['park'])
+            datas = {'price': price}
+            
+            if park and client_id and reservation.client == client:
+                datas['park'] = park
+                i=1
+                for dog_form in dogs_forms:
+                    # Sous entendu 'si le formulaire n'est pas vide', car name est set à required = True
+                    if dog_form['name']:
+                        try:
+                            dog = Dogs.objects.get(name__iexact=dog_form['name'], owner=client_id)
+                            if dog:
+                                for field in dog_form:
+                                    if field != 'name':
+                                        datas[field+'_dog_'+str(i)] = dog_form[field]
+                                    else:
+                                        datas['dog_'+str(i)] = dog
+
+                        except Exception:
+                            messages.error(request, "Au moins l'un des chiens référencés lors de la réservation n'est pas référencé en base de données. Veuillez réessayer")
+                            return HttpResponseRedirect('/client_reservations/?client='+client_id+'&client_phone='+str(client.phone))
+                    
+                    else:
+                        for field in dog_form:
+                            if field != 'name':
+                                datas[field+'_dog_'+str(i)] = dog_form[field]
+                            else:
+                                datas['dog_'+str(i)] = None
+                    i+=1
+
+                reservation.price = datas['price']
+                reservation.park = datas['park']
+                reservation.dog_1 = datas['dog_1']
+                reservation.dog_1_arrival = datas['arrival_date_dog_1']
+                reservation.dog_1_departure = datas['departure_date_dog_1']
+                reservation.dog_2 = datas['dog_2']
+                reservation.dog_2_arrival = datas['arrival_date_dog_2']
+                reservation.dog_2_departure = datas['departure_date_dog_2']
+                reservation.dog_3 = datas['dog_3']
+                reservation.dog_3_arrival = datas['arrival_date_dog_3']
+                reservation.dog_3_departure = datas['departure_date_dog_3']
+                reservation.dog_4 = datas['dog_4']
+                reservation.dog_4_arrival = datas['arrival_date_dog_4']
+                reservation.dog_4_departure = datas['departure_date_dog_4']
+                reservation.dog_5 = datas['dog_5']
+                reservation.dog_5_arrival = datas['arrival_date_dog_5']
+                reservation.dog_5_departure = datas['departure_date_dog_5']
+                reservation.save()
+
+                messages.success(request, "Vos modifications ont bien été prises en compte !")
+                return HttpResponseRedirect('/client_reservations/?client='+client_id+'&client_phone='+str(client.phone))
+            
+            else:
+                messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
+                return HttpResponseRedirect('/clients_profiles/')
+
+    else:
+        reservation_id = request.GET.get('reservation')
+        client_phone = request.GET.get('client_phone')
+        reservation = Reservations.objects.get(id=reservation_id)
+
+        if reservation.client.phone == '+'+client_phone:
+            #On prépare tous les formulaires nécessaires
+            # On génère un formulaire à partir de SelectParkAndClientForm et on set la valeur initiale du field park au nom du parc associé à la réservation à update
+            park_and_client = SelectParkAndClientForm()
+            park_and_client.fields['park'].initial = reservation.park.id
+            park_and_client.fields['client_id'].initial = 0
+            
+            dog_1 = DogForm()
+            dog_2 = DogForm()
+            dog_3 = DogForm()
+            dog_4 = DogForm()
+            dog_5 = DogForm()
+
+            i=2
+            fields = ['name', 'arrival_date', 'departure_date']
+            forms = [dog_1, dog_2, dog_3, dog_4, dog_5]
+            dogs = [reservation.dog_1, reservation.dog_2, reservation.dog_3, reservation.dog_4, reservation.dog_5]
+            arrivals = [reservation.dog_1_arrival, reservation.dog_2_arrival, reservation.dog_3_arrival, reservation.dog_4_arrival, reservation.dog_5_arrival]
+            departures = [reservation.dog_1_departure, reservation.dog_2_departure, reservation.dog_3_departure, reservation.dog_4_departure, reservation.dog_5_departure]
+            
+            for field in fields:
+                    dog_1.fields[field].required = True
+
+            # On attribue des préfixes distincts aux forms créés à partir de la même base, afin de pouvoir les récupérer correctement par la suite
+            for form in forms:
+                if form != forms[0]:
+                    for field in fields:
+                        form.fields[field].widget.attrs['id'] = field+"_dog"+str(i)
+                    form.prefix = 'form'+str(i)
+                    i+=1
+
+            # On va déterminer le delta entre l'heure locale pour une date donnée et l'heure UTC+0 afin de déterminer de combien il faut incrémenter le .initial des champs arrival_date et departure_date des formulaires. On rappel que lorsque l'on conculte un objet de tipe datetime aware depuis une table, bien qu'il continue à être aware lorsqu'on l'appel dans une vue, quand on consulte sa valeur, elle est retournée sans prendre en compte la timezone. Il faut donc faire en sorte de retourner à une valeur prenant en compte la timezone...
+            paris = pytz.timezone('Europe/Paris')
+
+            # On va parcourir ces 4 listes en même temps, et set les valeurs initiales des fields des forms correctement
+            for form, dog, arrival, departure in zip(forms, dogs, arrivals, departures):
+                if dog is not None:
+                    arr = arrival
+                    dep = departure
+                    # Différence entre l'heure locale et l'heure UTC+0 pour les dates de départ et d'arrivée ( on ne retient que l'heure, qu'on convertit en int )
+                    delta_arrival = int(str(paris.utcoffset(datetime.datetime(arr.year, arr.month, arr.day)))[0])
+                    delta_departure = int(str(paris.utcoffset(datetime.datetime(dep.year, dep.month, dep.day)))[0])
+                    form.fields['name'].initial = dog.name
+                    form.fields['arrival_date'].initial = str(datetime.datetime(year=arr.year, month=arr.month, day=arr.day, hour=arr.hour+delta_arrival, minute=arr.minute))
+                    form.fields['departure_date'].initial = str(datetime.datetime(year=dep.year, month=dep.month, day=dep.day, hour=dep.hour+delta_departure, minute=dep.minute))
+
+            return render(request, 'administration/update_reservation.html', {'park_and_client': park_and_client, 'reservation': reservation, 'dog_1': dog_1, 'dog_2': dog_2, 'dog_3': dog_3, 'dog_4': dog_4, 'dog_5': dog_5})
+        
+        else:
+            messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
+            return HttpResponseRedirect('/clients_profiles/')

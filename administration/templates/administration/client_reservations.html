@@ -1,0 +1,62 @@
+{% extends 'administration/base.html' %}
+
+{% block content %}
+<script src="../static/administration/js/my_scripts.js"></script>
+
+<!--Clients Reservations-->
+<br><br><br><br><br>{% include 'administration/messages.html' %}<br><br><br>
+
+<!--Client name-->
+<div class="container px-4 px-lg-5">
+    <h1 class="text-center mt-0">Réservations de {{client.first_name}} {{client.name}}</h1>
+    <hr class="divider"/>
+</div><br><br><br>
+
+{% if reservations %}
+    <!--Réservations list-->
+        {% for reservation in reservations %}
+            <div class="container input-group col-md-7">
+                <form action="">
+                    <p>
+                        <h6>{{reservation.dog_1}}</h6>
+                        <h6>Du {{reservation.dog_1_arrival}}</h6>
+                        <h6>Au {{reservation.dog_1_departure}}</h6>
+                        {% if reservation.dog_2 %}
+                            <h6>{{reservation.dog_2}}</h6>
+                            <h6>Du {{reservation.dog_2_arrival}}</h6>
+                            <h6>Au {{reservation.dog_2_departure}}</h6>
+                        {% endif %}
+                        {% if reservation.dog_3 %}
+                            <h6>{{reservation.dog_3}}</h6>
+                            <h6>Du {{reservation.dog_3_arrival}}</h6>
+                            <h6>Au {{reservation.dog_3_departure}}</h6>
+                        {% endif %}
+                        {% if reservation.dog_4 %}
+                            <h6>{{reservation.dog_4}}</h6>
+                            <h6>Du {{reservation.dog_4_arrival}}</h6>
+                            <h6>Au {{reservation.dog_4_departure}}</h6>
+                        {% endif %}
+                        {% if reservation.dog_5 %}
+                            <h6>{{reservation.dog_5}}</h6>
+                            <h6>Du {{reservation.dog_5_arrival}}</h6>
+                            <h6>Au {{reservation.dog_5_departure}}</h6>
+                        {% endif %}
+                        <h6>Dans le parc {{reservation.park}}</h6>
+                        <h6>Pour un montant de {{reservation.price}}€</h6>
+                    </p>
+                </form>
+            </div>
+            <div class="container input-group col-md-7" style="margin-top: 2px;">
+            <form action="/delete_reservation/" method="post">
+                {% csrf_token %}
+                <input type="number" value="{{reservation.id}}" name="reservation_id" hidden>
+                <input type="number" value="{{reservation.client.id}}" name="client" hidden>
+                <input type="submit" class="btn" id="deleteReservation{{reservation.id}}" hidden>
+                <button type="button" class="btn btn-danger btn-sm" style="margin-left: 3%; margin-right: 6px;" onclick="deleteConfirmation('deleteReservation{{reservation.id}}')">Supprimer</button>
+            </form>
+            <a href="/update_reservation/?reservation={{reservation.id}}&client_phone={{reservation.client.phone}}"><button type="button" class="btn btn-danger btn-sm" style="margin-left: 6px;">Modifier</button></a>
+            </div><br><br>
+        {% endfor %}<br><br><br>
+{% endif %}
+
+{% endblock %}
