@@ -23,7 +23,7 @@
         {% endif %}<br><br>
         <h4>Chien(s) : </h4>
         {% for dog in dogs %}
-            <h6>{{dog}}</h6>
+            <h6>{{dog}}{%if dog.transponder%} : {{dog.transponder}}{%endif%}</h6>
         {% endfor %}
     </div>
 </div><br><br><br>

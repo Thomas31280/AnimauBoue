@@ -331,7 +331,6 @@ def add_reservation(request):
                 return HttpResponseRedirect('/arrival-departure_interface/')
 
 
-####A faire, vue non fonctionnelle !####
 @user_passes_test(lambda u: u.is_superuser)
 def arrival_and_departure_interface(request):
     
@@ -347,18 +346,27 @@ def arrival_and_departure_interface(request):
             num_days = calendar.monthrange(year, month)[1]
             # On détermine le premier et dernier jour du mois, en utilisant le module datetime pour créer un objet de type datetime, et en utilisant sur cet objet la méthode django make_aware, qui permet de donner à l'objet datetime un attribut .tzinfo, qui contient des informations sur la timezone. Sans cela, il serait impossible de faire une compraison avec les datetimes présents en base de données
             first_day = make_aware(datetime.datetime(year, month, 1))
-            last_day = make_aware(datetime.datetime(year, month, num_days))
+            last_day = make_aware(datetime.datetime(year, month, num_days, 23, 59, 59))
             
+            # Dans la base de données, on va aller chercher tous les éléments :
+            # - Dont au moins l'un des chien arrive entre le premier et dernier jour d'un mois donné
+            # - Dont au moins l'un des chien part entre le premier et le dernier jour de ce mois
+            # - Dont l'intervalle entre son arrivée et son départ comprend à la fois le premier et le dernier jour de ce mois
             reservations = Reservations.objects.filter(dog_1_arrival__gte=first_day, dog_1_arrival__lte=last_day) | (
                            Reservations.objects.filter(dog_1_departure__gte=first_day, dog_1_departure__lte=last_day)) | (
+                           Reservations.objects.filter(dog_1_arrival__lt=first_day, dog_1_departure__gt=last_day)) | (
                            Reservations.objects.filter(dog_2_arrival__gte=first_day, dog_2_arrival__lte=last_day)) | (
                            Reservations.objects.filter(dog_2_departure__gte=first_day, dog_2_departure__lte=last_day)) | (
+                           Reservations.objects.filter(dog_2_arrival__lt=first_day, dog_2_departure__gt=last_day)) | (
                            Reservations.objects.filter(dog_3_arrival__gte=first_day, dog_3_arrival__lte=last_day)) | (
                            Reservations.objects.filter(dog_3_departure__gte=first_day, dog_3_departure__lte=last_day)) | (
+                           Reservations.objects.filter(dog_3_arrival__lt=first_day, dog_3_departure__gt=last_day)) | (
                            Reservations.objects.filter(dog_4_arrival__gte=first_day, dog_4_arrival__lte=last_day)) | (
                            Reservations.objects.filter(dog_4_departure__gte=first_day, dog_4_departure__lte=last_day)) | (
+                           Reservations.objects.filter(dog_4_arrival__lt=first_day, dog_4_departure__gt=last_day)) | (
                            Reservations.objects.filter(dog_5_arrival__gte=first_day, dog_5_arrival__lte=last_day)) | (
-                           Reservations.objects.filter(dog_5_departure__gte=first_day, dog_5_departure__lte=last_day))
+                           Reservations.objects.filter(dog_5_departure__gte=first_day, dog_5_departure__lte=last_day)) | (
+                           Reservations.objects.filter(dog_5_arrival__lt=first_day, dog_5_departure__gt=last_day))
 
             if reservations:
                 parks = Parks.objects.all().order_by('id')
@@ -459,16 +467,19 @@ def add_dog(request):
         client_id = request.POST.get('client_id')                                                  # On récupère les inputs cachés ( qui permettent d'identifier le client à update )
         client_phone = request.POST.get('client_phone')
         client = Clients.objects.get(id=client_id)
-        
         if client.phone == client_phone:                                                           # On vérifie que le couple de données est bien cohérent ( pour prévenir les actions frauduleuses côté HTML )
             # check whether it's valid:
             if dog_form.is_valid():
                 # process the data in form.cleaned_data as required
-                Dogs(name=dog_form.cleaned_data['name'], owner=client).save()
+                Dogs(name=dog_form.cleaned_data['name'], owner=client, transponder=dog_form.cleaned_data['transponder']).save()
 
                 messages.success(request, 'Nouveau chien ajouté avec succès')
                 # redirect to a new URL:
                 return HttpResponseRedirect('/client/?client='+client_id)
+            else:
+                messages.error(request, 'Format du numéro de transpondeur incorrect. Veuillez entrer exclusivement des chiffres')
+                # redirect to a new URL:
+                return HttpResponseRedirect('/add_dog/?client='+client_id+'&client_phone='+client_phone)
         
         else:
             messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
@@ -677,3 +688,137 @@ def update_reservation(request):
         else:
             messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
             return HttpResponseRedirect('/clients_profiles/')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def update_dog(request):
+
+    if request.method == 'POST':
+        dog_id = request.POST.get('dog_id')
+        owner_id = request.POST.get('owner_id')
+        dog = Dogs.objects.get(id=dog_id)
+
+        if dog.owner.id == int(owner_id):
+            form = AddDog(request.POST)
+            if form.is_valid():
+                
+                dog.name = form.cleaned_data['name']
+                dog.transponder = form.cleaned_data['transponder']
+                dog.save()
+                
+                messages.success(request, 'Les informations de '+dog.name+' ont été mises à jour avec succès')
+                return HttpResponseRedirect('/client/?client='+owner_id)
+        
+        else:
+            messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
+            return HttpResponseRedirect('/clients_profiles/')
+
+    else:
+        dog_id = request.GET.get('dog')
+        owner_id = request.GET.get('owner')
+        dog = Dogs.objects.get(id=dog_id)
+
+        if dog.owner.id == int(owner_id):
+            dog_form = AddDog()
+            dog_form.fields['name'].initial = dog.name
+            dog_form.fields['name'].label = 'Nom du chien :'
+            dog_form.fields['transponder'].initial = dog.transponder
+            return render(request, 'administration/update_dog.html', {'dog': dog, 'owner': dog.owner, 'dog_form': dog_form})
+        else:
+            messages.error(request, "Nous suspectons une action malveillante de votre part. Le processus a été interrompu")
+            return HttpResponseRedirect('/clients_profiles/')
+
+
+@user_passes_test(lambda u: u.is_superuser)
+def stats(request):
+    
+    if request.method == 'POST':
+        time_frame = SelectTimeFrameForm(request.POST)
+
+        if time_frame.is_valid():
+
+            month = int(time_frame.cleaned_data['month'])
+            year = int(time_frame.cleaned_data['year'])
+            num_days = calendar.monthrange(year, month)[1]
+            # On détermine le premier et dernier jour du mois, en utilisant le module datetime pour créer un objet de type datetime, et en utilisant sur cet objet la méthode django make_aware, qui permet de donner à l'objet datetime un attribut .tzinfo, qui contient des informations sur la timezone. Sans cela, il serait impossible de faire une compraison avec les datetimes présents en base de données
+            first_day = make_aware(datetime.datetime(year, month, 1))
+            last_day = make_aware(datetime.datetime(year, month, num_days, 23, 59, 59))
+            
+            reservations_time_frame = Reservations.objects.filter(dog_1_arrival__gte=first_day, dog_1_arrival__lte=last_day) | (
+                                    Reservations.objects.filter(dog_1_departure__gte=first_day, dog_1_departure__lte=last_day)) | (
+                                    Reservations.objects.filter(dog_1_arrival__lt=first_day, dog_1_departure__gt=last_day)) | (
+                                    Reservations.objects.filter(dog_2_arrival__gte=first_day, dog_2_arrival__lte=last_day)) | (
+                                    Reservations.objects.filter(dog_2_departure__gte=first_day, dog_2_departure__lte=last_day)) | (
+                                    Reservations.objects.filter(dog_2_arrival__lt=first_day, dog_2_departure__gt=last_day)) | (
+                                    Reservations.objects.filter(dog_3_arrival__gte=first_day, dog_3_arrival__lte=last_day)) | (
+                                    Reservations.objects.filter(dog_3_departure__gte=first_day, dog_3_departure__lte=last_day)) | (
+                                    Reservations.objects.filter(dog_3_arrival__lt=first_day, dog_3_departure__gt=last_day)) | (
+                                    Reservations.objects.filter(dog_4_arrival__gte=first_day, dog_4_arrival__lte=last_day)) | (
+                                    Reservations.objects.filter(dog_4_departure__gte=first_day, dog_4_departure__lte=last_day)) | (
+                                    Reservations.objects.filter(dog_4_arrival__lt=first_day, dog_4_departure__gt=last_day)) | (
+                                    Reservations.objects.filter(dog_5_arrival__gte=first_day, dog_5_arrival__lte=last_day)) | (
+                                    Reservations.objects.filter(dog_5_departure__gte=first_day, dog_5_departure__lte=last_day)) | (
+                                    Reservations.objects.filter(dog_5_arrival__lt=first_day, dog_5_departure__gt=last_day))
+
+            # On initialise toutes les stats
+            turnover = 0
+            rate_of_occupation = 0
+            nb_reservations = 0
+            avg_duration = 0
+            nb_days_occupied = 0
+            
+            if reservations_time_frame:
+                # On détermine d'office le nombre de réservations
+                nb_reservations = len(reservations_time_frame)
+
+                for reservation in reservations_time_frame:
+                    dates = [reservation.dog_1_arrival, reservation.dog_1_departure, reservation.dog_2_arrival, reservation.dog_2_departure,
+                            reservation.dog_3_arrival, reservation.dog_3_departure, reservation.dog_4_arrival, reservation.dog_4_departure,
+                            reservation.dog_5_arrival, reservation.dog_5_departure]
+                    
+                    start = dates[0]
+                    end = dates[1]
+                    
+                    for index in range(0, 9, 2):
+                        # On navigue dans une liste de toutes les querysets :
+                        # - Dont au moins l'un des chien arrive entre le premier et dernier jour d'un mois donné
+                        # - Dont au moins l'un des chien part entre le premier et le dernier jour de ce mois
+                        # - Dont l'intervalle entre son arrivée et son départ comprend à la fois le premier et le dernier jour de ce mois
+                        # On souhaite maintenant définir, pour chacune d'entre elle, le nombre de jours dans l'intervalle formé par l'arrivée du premier chien et le départ du dernier qui se trouvent dans ce mois.
+                        if dates[index] is not None:
+                            if start < first_day:
+                                start = first_day
+                            elif dates[index] < start:
+                                start = dates[index]
+                            
+                            if end > last_day:
+                                end = last_day
+                            elif dates[index+1] > end:
+                                end = dates[index+1]
+
+                    delta = end - start
+                    nb_days_occupied += (delta.days + delta.seconds/86400)
+                    
+                    # Si, pour la réservation, le dernier chien à partir part à une date comprise dans le mois, on incrémente turnover du prix de la réservation
+                    if end < last_day:
+                        turnover += reservation.price
+
+                # On définit la durée moyenne d'une réservation
+                avg_duration = nb_days_occupied/nb_reservations
+                
+                # On détermine ensuite la durée d'un mois, et on va multiplier le résultat par le nombre de tous les parcs disponnibles
+                # ( donc le nombre de jours occupés maximum théorique ), puis diviser le nombre de jours occupés dans le mois par ce chiffre
+                # pour obtenir le pourcentage d'occupation des parcs.
+                month_duration = (last_day - first_day).days + (last_day - first_day).seconds/86400
+                rate_of_occupation = (nb_days_occupied/(month_duration*len(Parks.objects.filter(availability=True))))*100
+
+                stats = {'avg_duration': "{:.2f}".format(avg_duration), 'nb_days_occupied': "{:.2f}".format(nb_days_occupied), 'nb_reservations': nb_reservations, 'rate_of_occupation': "{:.2f}".format(rate_of_occupation), 'turnover': turnover, 'time_frame': time_frame}
+                return render(request, 'administration/stats.html', {'time_frame': time_frame, 'stats': stats})
+            
+            else:
+                messages.error(request, "Aucune réservation enregistrée pour cette période")
+                return HttpResponseRedirect('/stats/')
+    
+    else:
+        time_frame = SelectTimeFrameForm()
+        return render(request, 'administration/stats.html', {'time_frame': time_frame})

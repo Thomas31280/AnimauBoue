@@ -15,14 +15,14 @@
 <div class="text-center">
     <h6 class="text-center text-dark mt-0">Pour la période :</h6>
     <br>
-    <form method="post" onclick="return AJAX">
+    <form method="post">
         {% csrf_token %}
         {% for field in time_frame %}
             {{ field.label }}
             {{ field }}
             &emsp;
         {% endfor %}
-        <input id="ajax-call" type="submit" value="Afficher">
+        <input type="submit" value="Afficher">
     </form>
 </div>
 

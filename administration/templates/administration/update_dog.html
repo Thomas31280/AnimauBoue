@@ -1,0 +1,28 @@
+{% extends 'administration/base.html' %}
+
+{% block content %}
+<script src="../static/administration/js/my_scripts.js"></script>
+
+<!--Dog Page-->
+<br><br><br><br><br>{% include 'administration/messages.html' %}<br><br><br>
+
+<!--Dog name-->
+<div class="container px-4 px-lg-5">
+    <h2 class="text-center mt-0">Veuillez mettre à jour les informations de {{dog}}</h2>
+    <hr class="divider"/>
+</div><br><br><br>
+
+<form action="/update_dog/" method="post">
+    {% csrf_token %}
+    <div class="container col-md-5" style="margin-left: 2%;">
+        {% for field in dog_form %}
+            {{field.label}}
+            {{field}}<br>
+        {% endfor %}
+        <input type="submit" class="btn btn-primary" value="Mettre à jour">
+    </div>
+    <input type="number" value="{{dog.id}}" name="dog_id" hidden>
+    <input type="tel" value="{{dog.owner.id}}" name="owner_id" hidden>
+</form><br><br><br>
+
+{% endblock %}

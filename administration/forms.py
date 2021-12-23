@@ -61,3 +61,4 @@ class SelectTimeFrameForm(forms.Form):
 
 class AddDog(forms.Form):
     name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'ex : Séraphin', 'class': 'form-control'}), label="Nouveau chien :", max_length=30)
+    transponder = forms.IntegerField(widget=forms.TextInput(attrs={'placeholder': 'Format : 15 chiffres', 'class': 'form-control'}), required=False, label="Numéro de transpondeur :")

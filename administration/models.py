@@ -21,6 +21,7 @@ class Clients(models.Model):
 class Dogs(models.Model):
     name = models.CharField(max_length=30)
     owner = models.ForeignKey(Clients, on_delete=models.CASCADE)
+    transponder = models.BigIntegerField(blank=True, null=True)
 
     def __str__(self):
         return self.name

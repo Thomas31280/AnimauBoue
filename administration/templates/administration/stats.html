@@ -1,0 +1,40 @@
+{% extends 'administration/base.html' %}
+
+{% block content %}
+{% load custom_tags %}
+<link href="../static/administration/css/personnal_styles.css" rel="stylesheet"/>
+<br><br><br><br><br>{% include 'administration/messages.html' %}<br><br>
+
+<!--Title and general infos-->
+<div class="container px-4 px-lg-5">
+    <h2 class="text-center text-dark mt-0">Données statistiques</h2>
+    <hr class="divider"/>
+    <br>
+</div>
+
+<div class="text-center">
+    <h6 class="text-center text-dark mt-0">Pour la période :</h6><br>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in time_frame %}
+            {{ field.label }}
+            {{ field }}
+            &emsp;
+        {% endfor %}
+        <input type="submit" value="Afficher">
+    </form>
+</div><br><br><br>
+
+
+<!--Affichage des données statistiques-->
+{% if stats %}
+    <div style="margin-left: 5%;">
+        <h6><b>Chiffre d'affaire :</b> <i style="color: brown;">{{stats.turnover}} €</i></h6><br>
+        <h6><b>Nombre de réservations :</b> <i style="color: brown;">{{stats.nb_reservations}}</i></h6><br>
+        <h6><b>Total des jours occupés :</b> <i style="color: brown;">{{stats.nb_days_occupied}} Jour(s)</i></h6><br>
+        <h6><b>Durée moyenne d'une réservation :</b> <i style="color: brown;">{{stats.avg_duration}} Jour(s)</i></h6><br>
+        <h6><b>Taux d'occupation des parcs :</b> <i style="color: brown;">{{stats.rate_of_occupation}} %</i></h6><br>
+    </div>
+{% endif %}
+
+{% endblock %}

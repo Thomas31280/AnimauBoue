@@ -21,6 +21,7 @@
             </div>
             <input type="submit" class="btn" id="deleteDog{{dog.id}}" hidden>
             <button type="button" class="btn btn-danger btn-sm" style="margin-left: 3%;" onclick="deleteConfirmation('deleteDog{{dog.id}}')">Supprimer</button>
+            <a href="/update_dog/?dog={{dog.id}}&owner={{dog.owner.id}}"><button type="button" class="btn btn-danger btn-sm" style="margin-left: 10%;">Modifier</button></a>
         </div>
         <div></div>
         <input type="number" value="{{dog.id}}" name="dog_id" hidden>
@@ -30,11 +31,14 @@
 
 <form action="/add_dog/" method="post">
     {% csrf_token %}
-    <div class="container col-md-7 input-group" style="margin-left: 2%;">
-        {{dog_form.name}}
-        <div class="input-group-append col-md-7">
-            <input type="submit" class="btn btn-primary" value="Ajouter">
-        </div>
+    <div class="container col-md-5" style="margin-left: 2%;">
+        {% for field in dog_form %}
+            {{field.label}}
+            {{field}}<br>
+        {% endfor %}
+    </div>
+    <div class="col-md-5" style="text-align: center;">
+        <input type="submit" class="btn btn-primary" value="Ajouter">
     </div>
     <input type="number" value="{{client.id}}" name="client_id" hidden>
     <input type="tel" value="{{client.phone}}" name="client_phone" hidden>
