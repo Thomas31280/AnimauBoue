@@ -1,0 +1,54 @@
+{% extends 'administration/base.html' %}
+
+{% block content %}
+{% load custom_tags %}
+<link href="../static/administration/css/personnal_styles.css" rel="stylesheet"/>
+<br><br><br><br><br>{% include 'administration/messages.html' %}<br><br>
+
+<!--Title and general infos-->
+<div class="container px-4 px-lg-5">
+    <h2 class="text-center text-dark mt-0">Disponnibilités</h2>
+    <hr class="divider"/>
+    <br>
+</div>
+
+<div class="text-center">
+    <h6 class="text-center text-dark mt-0">Veuillez sélectionner une période :</h6><br>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in time_frame %}
+            {{ field.label }}
+            {{ field }}
+            &emsp;
+        {% endfor %}
+        <input type="submit" value="Afficher">
+    </form>
+</div>
+
+<!--Création d'un tableau pour le mois -->
+{% if planning %}
+<br><br><h6 class="text-center text-dark mt-0">Veuillez noter que les disponnibilités sont données à titre indicatif. Pour tout projet d'hébergement, veuillez vous renseigner auprès du personnel, par téléphone ou via le <a href="/#contact">formulaire de contact</a></h6><br><br>
+
+    <table style="border-collapse: collapse; width:100%" class="text-center text-dark mt-0">
+        <tr>
+            <th style="border: 1px solid black; width:9%">Date</th>
+            {% for park in parks %}
+            <th style="border: 1px solid black; width:9%">Parc {{park}}</th>
+            {% endfor %}
+        </tr>
+        {% for key, value in planning.items %}
+            <tr>
+                <td style="border: 1px solid black; width:9%">{{key|date}}</td>
+                {% for key, park_availability in value.items %}
+                    {% if park_availability == False %}
+                    <td style="border: 1px solid black; background-color: rgba(231, 14, 14, 0.719); width:9%"></td>
+                    {% else %}
+                    <td style="border: 1px solid black; background-color: rgba(43, 134, 0, 0.719); width:9%"></td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+<br><br><br><br><br>
+{% endblock %}

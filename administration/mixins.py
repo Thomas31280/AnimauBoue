@@ -10,7 +10,7 @@ class SuperUserRequired(UserPassesTestMixin):
         return self.request.user.is_superuser
 
 
-class planning_n_stats(View, SuperUserRequired):
+class PlanningNStats(View, SuperUserRequired):
     form_class = SelectTimeFrameForm
 
     def reservations_in_interval(self, time_frame, build_array):

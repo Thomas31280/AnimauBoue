@@ -23,13 +23,12 @@ class AddClientForm(forms.Form):
 
 
 class SelectParkAndClientForm(forms.Form):
-    parks = Parks.objects.all()
+    parks = Parks.objects.filter(availability=True).order_by('id')
     OPTIONS = [("","")]
     
     # Les parcs proposés dans les formulaires ne doivent être que ceux qui sont disponnibles. De plus, les id doivent être valables, donc il vaut mieux créer ce form avec une itération sur les instances de la table Parks
     for park in parks:
-        if park.availability:
-            OPTIONS.append((str(park.id), str(park.name)))
+        OPTIONS.append((str(park.id), str(park.name)))
     OPTIONS = tuple(OPTIONS)
 
     park = forms.ChoiceField(widget=forms.Select(attrs={'id': 'park', 'style': "width: 100px;"}), choices=OPTIONS, label="Sélectionnez un parc :")

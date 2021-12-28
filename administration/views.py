@@ -13,7 +13,7 @@ import datetime, calendar, pytz
 from .forms import ConnectionForm, UpdateDataForm, AddClientForm, SelectParkAndClientForm, DogForm, SelectTimeFrameForm, AddDog
 from django.contrib.auth.models import User
 from administration.models import Clients, Dogs, Parks, Reservations
-from administration.mixins import SuperUserRequired, planning_n_stats
+from administration.mixins import SuperUserRequired, PlanningNStats
 
 
 def index(request):
@@ -24,7 +24,7 @@ def index(request):
 #######################################################################################
 #####################################Admin_account#####################################
 #######################################################################################
-class connect_admin_space(View):
+class ConnectAdminSpace(View):
     template_name = 'administration/admin_connect_space.html'
     form_class = ConnectionForm
     
@@ -51,7 +51,7 @@ class connect_admin_space(View):
                 return HttpResponseRedirect('/connect_admin_space/')
 
 
-class update_profile(View):
+class UpdateProfile(View):
     current_datas_class = ConnectionForm
     new_datas_class = UpdateDataForm
     template_name = 'administration/update_profile.html'
@@ -91,6 +91,7 @@ class update_profile(View):
                 messages.error(request, "Erreur dans vos données de profil actuelles. Veuillez réessayer")
                 return HttpResponseRedirect('/update_profile/')
 
+
 @user_passes_test(lambda u: u.is_superuser)
 def administration_interface(request):
     template = loader.get_template('administration/administration_interface.html')
@@ -107,7 +108,7 @@ def user_logout(request):
 ######################################################################################
 #####################################Parks Status#####################################
 ######################################################################################
-class parks_availability(View, SuperUserRequired):
+class ParksAvailability(View, SuperUserRequired):
     template_name = 'administration/parks_availability.html'
 
     def get(self, request):
@@ -137,7 +138,7 @@ class parks_availability(View, SuperUserRequired):
 #################################################################################
 #####################################Clients#####################################
 #################################################################################
-class add_client_form(View, SuperUserRequired):
+class AddClientForm(View, SuperUserRequired):
     template_name = 'administration/add_client_form.html'
     form_class = AddClientForm
 
@@ -164,7 +165,7 @@ class add_client_form(View, SuperUserRequired):
                 return HttpResponseRedirect('/add_client_form/')
 
 
-class update_client(View, SuperUserRequired):
+class UpdateClient(View, SuperUserRequired):
     form_class = AddClientForm
 
     def get(self, request):
@@ -294,7 +295,7 @@ def client(request):
 ######################################################################################
 #####################################Reservations#####################################
 ######################################################################################
-class reservations(View, SuperUserRequired):
+class Reservations(View, SuperUserRequired):
     template_name = 'administration/reservation_form.html'
     dog_form_class = DogForm
     park_n_client_form_class = SelectParkAndClientForm
@@ -304,7 +305,7 @@ class reservations(View, SuperUserRequired):
 Pour chercher un client, pouvoir le sélectionner et fournir
 les formulaires de réservation
 """
-class reservation_form(reservations):
+class ReservationForm(Reservations):
 
     def get(self, request):
         if SuperUserRequired.super_user(self):
@@ -353,7 +354,7 @@ Pour récupérer les formulaires de la vue reservation_form
 et process les datas pour insérer une nouvelle réservation
 dans la DB
 """
-class add_reservation(reservations):
+class AddReservation(Reservations):
 
     def post(self, request):
         if SuperUserRequired.super_user(self):
@@ -420,7 +421,7 @@ class add_reservation(reservations):
                     return HttpResponseRedirect('/arrival-departure_interface/')
 
 
-class update_reservation(reservations):
+class UpdateReservation(Reservations):
     
     def get(self, request):
         if SuperUserRequired.super_user(self):
@@ -576,7 +577,7 @@ def delete_reservation(request):
 #############################################################################################
 #####################################Plannings and stats#####################################
 #############################################################################################
-class arrival_and_departure(planning_n_stats):
+class ArrivalAndDeparture(PlanningNStats):
     template_name = 'administration/arrival-departure_interface.html'
     
     def get(self, request):
@@ -601,7 +602,7 @@ class arrival_and_departure(planning_n_stats):
                     return HttpResponseRedirect('/arrival-departure_interface/')
 
 
-class stats(planning_n_stats):
+class Stats(PlanningNStats):
     template_name = 'administration/stats.html'
 
     def get(self, request):
@@ -683,7 +684,7 @@ class stats(planning_n_stats):
 ##############################################################################
 #####################################Dogs#####################################
 ##############################################################################
-class add_dog(View, SuperUserRequired):
+class AddDog(View, SuperUserRequired):
     form_class = AddDog
 
     def get(self, request):
@@ -725,7 +726,7 @@ class add_dog(View, SuperUserRequired):
                 return HttpResponseRedirect('/clients_profiles/')
 
 
-class update_dog(View, SuperUserRequired):
+class UpdateDog(View, SuperUserRequired):
     form_class = AddDog
 
     def get(self, request):
