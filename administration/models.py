@@ -19,7 +19,7 @@ class Clients(models.Model):
 
 
 class Dogs(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=35)
     owner = models.ForeignKey(Clients, on_delete=models.CASCADE)
     transponder = models.BigIntegerField(blank=True, null=True)
 
