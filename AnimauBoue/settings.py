@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants as messages
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=v6f8j)^c^(mzw&d7+k%@o&-!uxfui-=99=2kcc^zo7!doxt1$'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'v6f8j)^c^(mzw&d7+k%@o&-!uxfui-=99=2kcc^zo7!doxt1$')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if os.environ.get('ENV') == 'PRODUCTION':
+    DEBUG = False
+else:
+    DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 
 # Application definition
@@ -45,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -83,7 +88,7 @@ DATABASES = {
         'NAME': 'AnimauBoue',                       # Le nom de notre base de donnees creee precedemment
         'USER': 'postgres',                         # Notre username dans PSQL
         'PASSWORD': '',
-        'HOST': '',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
@@ -141,3 +146,19 @@ MESSAGE_TAGS = {
     messages.WARNING: 'alert-warning',
     messages.ERROR: 'alert-danger',    
 }
+
+if os.environ.get('ENV') == 'PRODUCTION':
+
+    # Static files settings
+    PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+    STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+
+    # Extra places for collectstatic to find static files.
+    STATICFILES_DIRS = (
+        os.path.join(PROJECT_ROOT, 'static'),
+    )
+
+    # Simplified static file serving.
+    # https://warehouse.python.org/project/whitenoise/
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
