@@ -2,6 +2,7 @@ from django import forms
 from phonenumber_field.formfields import PhoneNumberField
 from administration.models import Parks
 
+
 class ConnectionForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(attrs={'placeholder': 'eMail', 'class': 'form-control'}), label="")
     userName = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Identifiant', 'class': 'form-control'}), label="")
@@ -24,8 +25,8 @@ class AddClientForm(forms.Form):
 
 class SelectParkAndClientForm(forms.Form):
     parks = Parks.objects.filter(availability=True).order_by('id')
-    OPTIONS = [("","")]
-    
+    OPTIONS = [("", "")]
+
     # Les parcs proposés dans les formulaires ne doivent être que ceux qui sont disponnibles. De plus, les id doivent être valables, donc il vaut mieux créer ce form avec une itération sur les instances de la table Parks
     for park in parks:
         OPTIONS.append((str(park.id), str(park.name)))
@@ -36,7 +37,7 @@ class SelectParkAndClientForm(forms.Form):
 
 
 class DogForm(forms.Form):
-    name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'ex : Medor', 'class': 'form-control','id': ''}), label="Nom du chien :", required=False)
+    name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'ex : Medor', 'class': 'form-control', 'id': ''}), label="Nom du chien :", required=False)
     arrival_date = forms.DateTimeField(label='Arrivée :', required=False, widget=forms.DateTimeInput(attrs={'type': 'datetime-local', 'min': "2022-01-01T00:00", 'max': "2060-12-31T23:59", 'id': ''}))
     departure_date = forms.DateTimeField(label='Départ :', required=False, widget=forms.DateTimeInput(attrs={'type': 'datetime-local', 'min': "2022-01-01T00:00", 'max': "2060-12-31T23:59", 'id': ''}))
     prefix = 'form1'
@@ -44,11 +45,11 @@ class DogForm(forms.Form):
 
 class SelectTimeFrameForm(forms.Form):
     MONTHS = (("", ""), (1, "Janvier"), (2, "Février"),
-               (3, "Mars"), (4, "Avril"), (5, "Mai"),
-               (6, "Juin"), (7, "Juillet"), (8, "Août"),
-               (9, "Septembre"), (10, "Octobre"), (11, "Novembre"), 
-               (12, "Décembre"))
-    YEARS = [("","")]
+              (3, "Mars"), (4, "Avril"), (5, "Mai"),
+              (6, "Juin"), (7, "Juillet"), (8, "Août"),
+              (9, "Septembre"), (10, "Octobre"), (11, "Novembre"),
+              (12, "Décembre"))
+    YEARS = [("", "")]
 
     for year in range(2022, 2061):
         YEARS.append((year, str(year)))
