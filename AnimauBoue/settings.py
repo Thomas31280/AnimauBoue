@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'AnimauBoue.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',  # On utilise l'adaptateur postgresql
-        'NAME': 'AnimauBoue',                       # Le nom de notre base de donnees creee precedemment
+        'NAME': 'animauboue',                       # Le nom de notre base de donnees creee precedemment
         'USER': 'postgres',                         # Notre username dans PSQL
         'PASSWORD': 'edgard31280',
         'HOST': 'localhost',
