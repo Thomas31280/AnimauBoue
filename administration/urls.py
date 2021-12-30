@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from .views import index
+from . import views
 from administration.views import ConnectAdminSpace, UpdateProfile, ParksAvailability, AddClientForm, ReservationForm, AddReservation, ArrivalAndDeparture, UpdateClient, AddDog, UpdateReservation, UpdateDog, Stats
 
 urlpatterns = [
