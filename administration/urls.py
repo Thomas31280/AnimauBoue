@@ -5,7 +5,7 @@ from . import views
 from administration.views import ConnectAdminSpace, UpdateProfile, ParksAvailability, AddClientForm, ReservationForm, AddReservation, ArrivalAndDeparture, UpdateClient, AddDog, UpdateReservation, UpdateDog, Stats
 
 urlpatterns = [
-    url(r'^$', index, name="index"),               # On appel la vue index de l'app administration avec ce schéma d'url
+    url(r'^$', views.index, name="index"),               # On appel la vue index de l'app administration avec ce schéma d'url
     url(r'^connect_admin_space', ConnectAdminSpace.as_view(), name="connect_admin_space"),
     url(r'^logout', views.user_logout, name="logout"),
     url(r'^update_profile', login_required(UpdateProfile.as_view()), name="update_profile"),
