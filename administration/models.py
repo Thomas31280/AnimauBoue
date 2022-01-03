@@ -7,7 +7,7 @@ class Clients(models.Model):
     first_name = models.CharField(max_length=30)
     name = models.CharField(max_length=30)
     phone = PhoneNumberField(unique=True, null=False, blank=False)
-    email = models.EmailField(unique=True, max_length=65, blank=True)
+    email = models.EmailField(max_length=65, blank=True)
 
     def __str__(self):
         return self.first_name

@@ -174,12 +174,11 @@ class UpdateClient(View, SuperUserRequired):
             client = Clients.objects.get(id=client_id)
 
             if client.phone == '+'+client_phone:
-                update = self.form_class()
-
-                update.fields['firstName'].initial = client.first_name
-                update.fields['name'].initial = client.name
-                update.fields['phone'].initial = client.phone
-                update.fields['email'].initial = client.email
+                update = self.form_class(initial={'email': client.email, 'phone': client.phone,
+                                                  'name': client.name, 'firstName': client.first_name})
+                print('got it !!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                for field in update:
+                    print(field)
 
                 return render(request, 'administration/update_client.html', {'client': client, 'update': update})
 
