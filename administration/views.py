@@ -137,7 +137,7 @@ class ParksAvailability(View, SuperUserRequired):
 #################################################################################
 #####################################Clients#####################################
 #################################################################################
-class AddClientForm(View, SuperUserRequired):
+class AddClient(View, SuperUserRequired):
     template_name = 'administration/add_client_form.html'
     form_class = AddClientForm
 
@@ -176,9 +176,8 @@ class UpdateClient(View, SuperUserRequired):
             if client.phone == '+'+client_phone:
                 update = self.form_class(initial={'email': client.email, 'phone': client.phone,
                                                   'name': client.name, 'firstName': client.first_name})
-                print('got it !!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                for field in update:
-                    print(field)
+                print('Ok')
+                print(update)
 
                 return render(request, 'administration/update_client.html', {'client': client, 'update': update})
 
@@ -675,7 +674,7 @@ class Stats(PlanningNStats):
 ##############################################################################
 #####################################Dogs#####################################
 ##############################################################################
-class AddDog(View, SuperUserRequired):
+class NewDog(View, SuperUserRequired):
     form_class = AddDog
 
     def get(self, request):
