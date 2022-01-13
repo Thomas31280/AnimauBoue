@@ -78,7 +78,6 @@ class UpdateProfile(View):
                     user_to_update.email = new_datas.cleaned_data['new_email']
                     user_to_update.set_password(new_datas.cleaned_data['new_password'])
                     user_to_update.save()
-
                     messages.success(request, 'Vos informations ont bien été mises à jour. Veuillez vous connecter')
                     return HttpResponseRedirect('/connect_admin_space/')
 
@@ -176,8 +175,6 @@ class UpdateClient(View, SuperUserRequired):
             if client.phone == '+'+client_phone:
                 update = self.form_class(initial={'email': client.email, 'phone': client.phone,
                                                   'name': client.name, 'firstName': client.first_name})
-                print('Ok')
-                print(update)
 
                 return render(request, 'administration/update_client.html', {'client': client, 'update': update})
 
